@@ -1,11 +1,11 @@
 import Link from "next/link";
-import { NAV_GROUPS } from "@/lib/nav";
+import type { NavGroup } from "@/lib/nav";
 
-export function SiteFooter() {
+export function SiteFooter({ groups }: { groups: NavGroup[] }) {
   return (
     <footer className="mt-16 border-t border-surface-variant bg-surface-container-low">
       <div className="mx-auto max-w-7xl px-4 py-10 sm:px-6 lg:px-10">
-        <div className="grid gap-8 sm:grid-cols-2 lg:grid-cols-4">
+        <div className="grid gap-8 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6">
           <div>
             <p className="text-sm font-bold text-on-surface">
               서울언남초등학교 연구학교
@@ -18,7 +18,7 @@ export function SiteFooter() {
             <p className="mt-2 text-sm text-on-surface-variant">2026.3.1. ~ 2027.2.28.</p>
           </div>
 
-          {NAV_GROUPS.map((group) => (
+          {groups.map((group) => (
             <nav key={group.label} aria-label={group.label}>
               <p className="text-sm font-semibold text-on-surface">{group.label}</p>
               <ul className="mt-2 space-y-1">

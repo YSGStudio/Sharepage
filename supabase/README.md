@@ -14,6 +14,24 @@ Supabase 대시보드 → **SQL Editor** → **New query** 에
 
 되돌리려면 `migrations/0001_init_rollback.sql` 을 같은 방식으로 실행한다.
 
+이후 마이그레이션도 같은 방법으로 번호 순서대로 실행한다.
+
+| 파일 | 내용 |
+| --- | --- |
+| `migrations/0002_fix_rate_limit_grants.sql` | 지도안 rate limit 함수 권한 정리 |
+| `migrations/0003_timeline_activities.sql` | 월별 추진활동 테이블 `timeline_activities` (읽기 공개, 쓰기 운영자 전용) |
+| `migrations/0004_nav_items.sql` | 탭 메뉴 테이블 `nav_items` (읽기 공개, 쓰기 운영자 전용). 현재 메뉴 14개를 기본값으로 함께 넣는다 |
+
+`0003` 을 실행하기 전에는 `/timeline` 이 `src/content/timeline.ts` 의 기본 계획만
+보여주고, 운영자 화면(`/admin/timeline`)에서 등록을 시도하면 오류가 난다.
+
+`0004` 를 실행하기 전에는 왼쪽 세로 메뉴가 `src/lib/nav.ts` 의 기본 목록으로
+동작하고, 운영자 화면(`/admin/nav`)에서 편집할 수 없다. 표가 비어 있으면
+`/admin/nav` 의 "기본 메뉴 가져오기" 버튼으로 다시 채울 수 있다.
+
+> 탭을 지워도 그 페이지 자체가 사라지는 것은 아니다. 메뉴에서만 빠지고
+> 주소로는 계속 들어갈 수 있다.
+
 ## 2. 운영자(admin) 계정 만들기
 
 운영자 계정은 사이트 UI로 만들지 않는다. 다음 순서로 지정한다.

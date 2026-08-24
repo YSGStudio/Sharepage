@@ -3,7 +3,8 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useState } from "react";
-import { NAV_GROUPS } from "@/lib/nav";
+import { isActivePath, navLinkClass } from "@/components/site-nav";
+import type { NavGroup } from "@/lib/nav";
 
 export interface HeaderUser {
   name: string;
@@ -11,17 +12,17 @@ export interface HeaderUser {
   isApproved: boolean;
 }
 
-export function SiteHeader({ user }: { user: HeaderUser | null }) {
+export function SiteHeader({
+  user,
+  groups,
+}: {
+  user: HeaderUser | null;
+  groups: NavGroup[];
+}) {
   const [open, setOpen] = useState(false);
   const pathname = usePathname();
 
-  const linkClass = (href: string) =>
-    [
-      "block rounded-xl px-3 py-2 text-sm transition-colors duration-200",
-      pathname === href
-        ? "bg-surface-variant font-semibold text-primary"
-        : "text-on-surface-variant hover:bg-surface-container-high hover:text-primary",
-    ].join(" ");
+  const linkClass = (href: string) => navLinkClass(isActivePath(pathname, href));
 
   return (
     <header className="sticky top-0 z-40 border-b border-surface-variant bg-white/95 backdrop-blur">
@@ -43,20 +44,8 @@ export function SiteHeader({ user }: { user: HeaderUser | null }) {
           </span>
         </Link>
 
-        {/* 데스크톱 내비게이션 */}
-        <nav aria-label="주요 메뉴" className="hidden xl:block">
-          <ul className="flex items-center gap-1">
-            {NAV_GROUPS.flatMap((group) => group.items).map((item) => (
-              <li key={item.href}>
-                <Link href={item.href} className={linkClass(item.href)}>
-                  {item.label}
-                </Link>
-              </li>
-            ))}
-          </ul>
-        </nav>
-
-        <div className="hidden shrink-0 items-center gap-2 xl:flex">
+        {/* 주요 메뉴는 왼쪽 세로 내비게이션(SiteSidebar)에 있다. 헤더에는 계정 영역만 둔다. */}
+        <div className="hidden shrink-0 items-center gap-2 lg:flex">
           <AuthArea user={user} />
         </div>
 
@@ -66,16 +55,19 @@ export function SiteHeader({ user }: { user: HeaderUser | null }) {
           onClick={() => setOpen((v) => !v)}
           aria-expanded={open}
           aria-controls="mobile-menu"
-          className="rounded border border-outline-variant px-3 py-2 text-sm font-medium text-primary xl:hidden"
+          className="rounded border border-outline-variant px-3 py-2 text-sm font-medium text-primary lg:hidden"
         >
           {open ? "닫기" : "메뉴"}
         </button>
       </div>
 
       {open && (
-        <div id="mobile-menu" className="border-t border-surface-variant bg-white xl:hidden">
-          <nav aria-label="주요 메뉴 (모바일)" className="mx-auto max-w-7xl px-4 py-3 sm:px-6">
-            {NAV_GROUPS.map((group) => (
+        <div id="mobile-menu" className="border-t border-surface-variant bg-white lg:hidden">
+          <nav
+            aria-label="주요 메뉴 (좁은 화면)"
+            className="mx-auto max-h-[calc(100vh-8rem)] max-w-7xl overflow-y-auto px-4 py-3 sm:px-6"
+          >
+            {groups.map((group) => (
               <div key={group.label} className="mb-3">
                 <p className="px-3 py-1 text-xs font-semibold tracking-wide text-ink-500">
                   {group.label}

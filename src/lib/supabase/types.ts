@@ -69,3 +69,29 @@ export interface ApiRateLimit {
   count: number;
   updated_at: string;
 }
+
+export type ActivityStatus = "not_started" | "in_progress" | "done";
+
+export interface TimelineActivity {
+  id: string;
+  year: number;
+  month: number;
+  title: string;
+  assignees: string[];
+  status: ActivityStatus;
+  note: string | null;
+  sort_order: number;
+  created_by: string | null;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface NavItemRow {
+  id: string;
+  group_label: string;
+  label: string;
+  href: string;
+  sort_order: number;
+  created_at: string;
+  updated_at: string;
+}

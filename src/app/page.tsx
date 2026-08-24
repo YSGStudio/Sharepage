@@ -1,34 +1,7 @@
+import Image from "next/image";
 import Link from "next/link";
 import { Card, Container, Section } from "@/components/ui";
-import { BRIDGE_STAGES } from "@/content/bridge";
 import { RESEARCH_OVERVIEW, RESEARCH_PHASES } from "@/content/research";
-
-const ENTRY_POINTS = [
-  {
-    href: "/about",
-    title: "연구 핵심소개",
-    body: "무엇을, 왜, 어떤 절차로 연구하는지 한 페이지로 확인합니다.",
-    number: "01",
-  },
-  {
-    href: "/model",
-    title: "BRIDGE 모델",
-    body: "6단계 수업 모델의 정의와 학생 주도성 요소를 자세히 봅니다.",
-    number: "02",
-  },
-  {
-    href: "/timeline",
-    title: "월별 추진현황",
-    body: "2월부터 이듬해 1월까지 매달의 활동을 시간 순으로 봅니다.",
-    number: "03",
-  },
-  {
-    href: "/results",
-    title: "연구 결과",
-    body: "과제별 성과와 시사점, 검증 계획과 확산 사례를 봅니다.",
-    number: "04",
-  },
-];
 
 const SHARE_POINTS = [
   {
@@ -117,63 +90,29 @@ export default function Home() {
       </section>
 
       <Container>
-        {/* BRIDGE 6단계 요약 */}
+        {/* BRIDGE 모델 설명 이미지 */}
         <Section
-          title="BRIDGE 6단계"
-          description="한 단원 안에서 여섯 단계가 모두 나타나도록 수업을 설계합니다."
+          title="BRIDGE 프로젝트"
+          description="전통 수업과 디지털 학습을 연결해 학생 주도성과 배움의 확장을 이끄는 연구학교 프로젝트입니다."
         >
-          <ol className="grid overflow-hidden rounded-lg border border-surface-variant bg-white sm:grid-cols-2 lg:grid-cols-3">
-            {BRIDGE_STAGES.map((stage) => (
-              <li
-                key={stage.letter}
-                className="border-b border-surface-variant last:border-b-0 sm:border-r sm:[&:nth-child(2n)]:border-r-0 sm:[&:nth-last-child(-n+2)]:border-b-0 lg:[&:nth-child(2n)]:border-r lg:[&:nth-child(3n)]:border-r-0 lg:[&:nth-last-child(-n+3)]:border-b-0"
-              >
-                <Link
-                  href={`/model#${stage.letter}`}
-                  className="flex h-full items-start gap-3 p-5 transition-colors duration-200 hover:bg-surface-container-low"
-                >
-                  <span
-                    aria-hidden
-                    className="flex h-10 w-10 shrink-0 items-center justify-center rounded bg-primary text-lg font-bold text-white"
-                  >
-                    {stage.letter}
-                  </span>
-                  <span className="min-w-0">
-                    <span className="block text-sm font-semibold text-on-surface">
-                      {stage.name}
-                    </span>
-                    <span className="mt-0.5 block text-sm text-on-surface-variant">
-                      {stage.korean}
-                    </span>
-                  </span>
-                </Link>
-              </li>
-            ))}
-          </ol>
-        </Section>
-
-        {/* 연구 둘러보기 */}
-        <Section title="연구 둘러보기">
-          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-            {ENTRY_POINTS.map((item) => (
-              <Link key={item.href} href={item.href} className="group">
-                <Card className="relative h-full transition-all duration-200 group-hover:border-outline group-hover:shadow-[0_4px_20px_rgba(0,0,0,0.05)]">
-                  <span className="text-xs font-semibold tracking-widest text-primary">
-                    {item.number}
-                  </span>
-                  <h3 className="mt-4 text-lg font-semibold text-on-surface">
-                    {item.title}
-                  </h3>
-                  <p className="mt-2 text-sm leading-relaxed text-on-surface-variant">
-                    {item.body}
-                  </p>
-                  <span className="mt-5 inline-block text-sm font-medium text-primary">
-                    바로가기 →
-                  </span>
-                </Card>
-              </Link>
-            ))}
-          </div>
+          <Link
+            href="/about"
+            aria-label="연구 핵심소개에서 BRIDGE 모델 자세히 보기"
+            className="group block overflow-hidden rounded-2xl border border-emerald-100 bg-white p-2 shadow-[0_12px_36px_rgba(0,108,73,0.08)] transition-all duration-200 hover:-translate-y-0.5 hover:shadow-[0_16px_44px_rgba(0,108,73,0.14)] sm:p-4"
+          >
+            <Image
+              src="/images/bridge-explanation.png"
+              width={1360}
+              height={724}
+              alt="BRIDGE 모델의 B Blend, R Reorganize, I Initiative, D Develop, G Grow, E Enrich 여섯 요소 설명"
+              className="h-auto w-full rounded-xl"
+              sizes="(max-width: 1024px) 100vw, 75vw"
+            />
+            <span className="flex items-center justify-between gap-3 px-3 py-3 text-sm font-bold text-brand-700 sm:px-4">
+              <span>BRIDGE 모델 자세히 알아보기</span>
+              <span aria-hidden className="transition-transform group-hover:translate-x-1">→</span>
+            </span>
+          </Link>
         </Section>
 
         {/* 함께 나누기 */}

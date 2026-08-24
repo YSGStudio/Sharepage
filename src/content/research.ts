@@ -123,3 +123,10 @@ export const RESEARCH_PHASES: ResearchPhase[] = [
     focus: "보고서 발간, 자료집 배포, 공개 보고회 운영, 타 학교·교육청 확산",
   },
 ];
+
+/** 내비게이션·페이지에서 쓰는 과제 번호 이름 (과제1~3, 선택1~2) */
+export function taskLabel(task: ResearchTask): string {
+  const sameKind = RESEARCH_TASKS.filter((t) => t.kind === task.kind);
+  const order = sameKind.indexOf(task) + 1;
+  return task.kind === "공통과제" ? `과제${order}` : `선택${order}`;
+}

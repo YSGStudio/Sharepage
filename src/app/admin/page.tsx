@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Link from "next/link";
 import { redirect } from "next/navigation";
 import { DeleteButton } from "@/components/delete-button";
 import { StatusActions } from "@/components/status-action";
@@ -52,6 +53,47 @@ export default async function AdminPage() {
             </Alert>
           </div>
         )}
+
+        {/* 콘텐츠 관리 바로가기 */}
+        <Section
+          title="콘텐츠 관리"
+          description="공개 페이지에 실리는 내용을 직접 등록·수정합니다."
+        >
+          <ul className="space-y-3">
+            <li>
+              <Card className="flex flex-wrap items-center justify-between gap-4">
+                <div className="min-w-0">
+                  <p className="font-medium text-ink-900">월별 추진활동</p>
+                  <p className="text-sm text-ink-500">
+                    달마다 활동 카드를 추가하고 담당자·진행 상태를 관리합니다.
+                  </p>
+                </div>
+                <Link
+                  href="/admin/timeline"
+                  className="rounded-lg bg-brand-600 px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-brand-700"
+                >
+                  관리하기
+                </Link>
+              </Card>
+            </li>
+            <li>
+              <Card className="flex flex-wrap items-center justify-between gap-4">
+                <div className="min-w-0">
+                  <p className="font-medium text-ink-900">탭 메뉴</p>
+                  <p className="text-sm text-ink-500">
+                    왼쪽 세로 메뉴의 탭 이름·순서를 바꾸고, 탭을 추가하거나 지웁니다.
+                  </p>
+                </div>
+                <Link
+                  href="/admin/nav"
+                  className="rounded-lg bg-brand-600 px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-brand-700"
+                >
+                  관리하기
+                </Link>
+              </Card>
+            </li>
+          </ul>
+        </Section>
 
         {/* 가입 승인 (R23) */}
         <Section
