@@ -1,0 +1,71 @@
+/**
+ * DB 스키마 타입. supabase/migrations/0001_init.sql 과 1:1로 대응한다.
+ * 스키마를 바꾸면 이 파일도 함께 고친다.
+ */
+
+export type TeacherRole = "admin" | "teacher";
+export type TeacherStatus = "pending" | "approved" | "rejected";
+export type TestimonialStatus = "pending" | "approved" | "rejected";
+export type AuthorType = "student" | "parent";
+
+export interface Teacher {
+  id: string;
+  name: string;
+  division: string | null;
+  role: TeacherRole;
+  status: TeacherStatus;
+  created_at: string;
+}
+
+export interface TeachingMaterial {
+  id: string;
+  title: string;
+  subject: string;
+  grade: string;
+  file_path: string;
+  file_name: string;
+  description: string | null;
+  uploader_id: string | null;
+  created_at: string;
+}
+
+export interface Photo {
+  id: string;
+  storage_path: string;
+  caption: string | null;
+  category: string | null;
+  uploader_id: string | null;
+  created_at: string;
+}
+
+export interface Testimonial {
+  id: string;
+  author_type: AuthorType;
+  author_name: string | null;
+  content: string;
+  photo_path: string | null;
+  status: TestimonialStatus;
+  reviewed_by: string | null;
+  created_at: string;
+}
+
+export interface LessonPlan {
+  id: string;
+  teacher_id: string;
+  grade: string;
+  subject: string;
+  achievement_standard: string;
+  goal: string;
+  task: string;
+  eval_criteria_top: string;
+  generated_content: string;
+  created_at: string;
+}
+
+export interface ApiRateLimit {
+  id: string;
+  ip_address: string;
+  request_date: string;
+  count: number;
+  updated_at: string;
+}

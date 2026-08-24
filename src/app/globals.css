@@ -1,0 +1,91 @@
+@import "tailwindcss";
+
+@theme {
+  /* Academic Excellence Framework */
+  --color-brand-50: #eef2ff;
+  --color-brand-100: #dbe1ff;
+  --color-brand-200: #b5c4ff;
+  --color-brand-300: #8ea8ff;
+  --color-brand-400: #5f82ee;
+  --color-brand-500: #1a56db;
+  --color-brand-600: #003fb1;
+  --color-brand-700: #003393;
+  --color-brand-800: #00276f;
+  --color-brand-900: #00174d;
+
+  --color-accent-100: #ffddb8;
+  --color-accent-300: #ffb95f;
+  --color-accent-500: #895600;
+  --color-accent-700: #694100;
+
+  --color-ink-500: #434654;
+  --color-ink-700: #2e3132;
+  --color-ink-900: #191c1d;
+
+  --color-primary: #003fb1;
+  --color-on-primary: #ffffff;
+  --color-secondary: #006c49;
+  --color-tertiary: #694100;
+  --color-error: #ba1a1a;
+  --color-surface: #f8f9fa;
+  --color-surface-container-lowest: #ffffff;
+  --color-surface-container-low: #f3f4f5;
+  --color-surface-container: #edeeef;
+  --color-surface-container-high: #e7e8e9;
+  --color-surface-variant: #e1e3e4;
+  --color-on-surface: #191c1d;
+  --color-on-surface-variant: #434654;
+  --color-outline: #737686;
+  --color-outline-variant: #c3c5d7;
+
+  --font-sans: var(--font-noto-sans-kr), -apple-system, BlinkMacSystemFont,
+    "Apple SD Gothic Neo", "Malgun Gothic", sans-serif;
+}
+
+:root {
+  --background: #f8f9fa;
+  --surface: #ffffff;
+  --foreground: #191c1d;
+}
+
+html {
+  /* 어떤 화면 폭에서도 가로 스크롤이 생기지 않게 한다 (R18) */
+  overflow-x: hidden;
+}
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+  font-family: var(--font-sans);
+  overflow-x: hidden;
+  -webkit-text-size-adjust: 100%;
+}
+
+::selection {
+  background: #dbe1ff;
+  color: #00174d;
+}
+
+:focus-visible {
+  outline: 2px solid #003fb1;
+  outline-offset: 2px;
+}
+
+/* 긴 URL·영문 단어가 좁은 화면을 밀어내지 않게 한다 */
+p,
+li,
+td,
+h1,
+h2,
+h3 {
+  overflow-wrap: break-word;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
+}
