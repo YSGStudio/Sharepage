@@ -27,7 +27,7 @@ export const DIVISIONS: Division[] = [
       "월별 추진 일정 관리와 분과 간 조율",
       "연구 예산 편성 및 집행 계획 수립",
     ],
-    members: ["김○○ (연구부장)", "최○○"],
+    members: ["임○○ (교무부장)", "최○○"],
   },
   {
     id: "curriculum",
@@ -39,7 +39,7 @@ export const DIVISIONS: Division[] = [
       "AI·디지털 도구의 단계별 활용 지침 마련",
       "선택과제(기초학력·생태전환) 연계 프로그램 설계",
     ],
-    members: ["양○○", "이○○"],
+    members: ["양○○", "임○○"],
   },
   {
     id: "operation",
@@ -51,7 +51,7 @@ export const DIVISIONS: Division[] = [
       "공개 수업 및 외부 방문 일정 운영",
       "학생 주도성 신장 활동(학생 자치·나눔) 지원",
     ],
-    members: ["박○○", "정○○"],
+    members: ["추○○ (연구부장)", "이○○"],
   },
   {
     id: "evaluation",
@@ -63,7 +63,7 @@ export const DIVISIONS: Division[] = [
       "연구 결과 통계 처리와 검증 보고서 작성",
       "연구 물품·환경 지원 및 디지털 기기 관리",
     ],
-    members: ["한○○", "조○○"],
+    members: ["황○○", "손○○"],
   },
   {
     id: "outreach",
@@ -75,7 +75,7 @@ export const DIVISIONS: Division[] = [
       "학부모 대상 안내와 연구 참여 소통",
       "타 학교·교육청 대상 성과 확산 자료 제작",
     ],
-    members: ["윤○○", "서○○"],
+    members: ["김○○", "이○○"],
   },
 ];
 

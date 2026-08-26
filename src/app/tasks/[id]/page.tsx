@@ -49,7 +49,19 @@ export default async function TaskPage({
       />
 
       <Container>
-        <Section title="추진 전략">
+        <Section title="핵심 목표">
+          <Card
+            className={`border-l-4 ${
+              common ? "border-l-brand-600" : "border-l-accent-500"
+            }`}
+          >
+            <p className="text-base font-semibold leading-relaxed text-ink-900">
+              {task.goal}
+            </p>
+          </Card>
+        </Section>
+
+        <Section title="주요 추진 내용">
           <ul className="space-y-3">
             {task.strategies.map((strategy, i) => (
               <li key={strategy}>
@@ -65,6 +77,21 @@ export default async function TaskPage({
                   <span className="text-sm leading-relaxed text-ink-700">
                     {strategy}
                   </span>
+                </Card>
+              </li>
+            ))}
+          </ul>
+        </Section>
+
+        <Section title="기대 효과">
+          <ul className="grid gap-4 sm:grid-cols-3">
+            {task.effects.map((effect) => (
+              <li key={effect}>
+                <Card className="h-full">
+                  <Badge tone={common ? "brand" : "accent"}>기대 효과</Badge>
+                  <p className="mt-3 text-sm font-semibold leading-relaxed text-ink-800">
+                    {effect}
+                  </p>
                 </Card>
               </li>
             ))}

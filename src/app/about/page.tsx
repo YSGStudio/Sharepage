@@ -3,8 +3,10 @@ import Link from "next/link";
 import { BridgeIntroduction } from "@/components/bridge-introduction";
 import { Card, Container, PageHeader, Section } from "@/components/ui";
 import {
+  RESEARCH_GOAL,
   RESEARCH_OVERVIEW,
   RESEARCH_PHASES,
+  RESEARCH_PURPOSES,
   RESEARCH_TASKS,
   taskLabel,
 } from "@/content/research";
@@ -17,29 +19,34 @@ export const metadata: Metadata = {
 
 const TASK_SUMMARIES = {
   "common-1": {
-    title: "BRIDGE 모델 개발·적용",
-    summary: "6단계 수업 모델을 만들고 전 학년 교과 수업에 적용합니다.",
-    keywords: ["6단계 표준안", "학년군별 적용", "디지털 도구 지침"],
+    title: "교수·학습·평가 일체형 수업모델",
+    summary:
+      "AI·디지털 기술을 활용한 교수·학습·평가 일체형 수업 체제를 구축하고 BRIDGE 모델을 검증합니다.",
+    keywords: ["BRIDGE 모델 개발", "과정 중심 평가 혁신", "학년·교과 확장"],
   },
   "common-2": {
-    title: "학생 주도 수업문화",
-    summary: "학생이 선택하고 협력하며 배움에 책임지는 수업 문화를 만듭니다.",
-    keywords: ["학생 선택권", "자기·상호평가", "학습 나눔"],
+    title: "학생 주도 디지털 역량·리터러시",
+    summary:
+      "학생의 디지털 활용 능력과 책임 있는 디지털 시민성을 함께 기릅니다.",
+    keywords: ["디지털 또래 지원단", "AI·디지털 윤리", "디지털 포트폴리오"],
   },
   "common-3": {
-    title: "교원 성장·성과 확산",
-    summary: "교사의 수업 전문성을 높이고 연구 성과를 학교 밖으로 확산합니다.",
-    keywords: ["교내 연수", "수업 나눔", "성과 아카이브"],
+    title: "오케스트레이션 역량·연구 생태계",
+    summary:
+      "교사의 AI·디지털 수업 전문성을 높이고 협력적 연구 문화를 만듭니다.",
+    keywords: ["맞춤형 교원 연수", "수업 나눔 확산", "업무 경감 체제"],
   },
   "option-1": {
-    title: "맞춤형 기초학력 지원",
-    summary: "진단 결과에 따라 학생별로 필요한 보충 학습을 제공합니다.",
-    keywords: ["학습 진단", "개별 맞춤 과제", "협력 지도"],
+    title: "기초학력 지원·맞춤형 학습 보장",
+    summary:
+      "AI 코스웨어로 학생 수준을 진단하고 개별 학습 경로와 보충 학습을 제공합니다.",
+    keywords: ["AI 코스웨어 진단", "보충 수업", "학부모 소통"],
   },
   "option-2": {
-    title: "생태전환교육 연계",
-    summary: "지역의 생태 문제를 탐구하고 학생 주도의 실천으로 연결합니다.",
-    keywords: ["생태 프로젝트", "자료 시각화", "실천 캠페인"],
+    title: "생태전환교육 수업 모델 적용",
+    summary:
+      "BRIDGE 모델을 생태전환교육에 적용해 탐구를 실천으로 잇습니다.",
+    keywords: ["생태전환 탐구 수업", "생태 실천 활동", "수업 사례 확산"],
   },
 } as const;
 
@@ -105,6 +112,7 @@ export default function AboutPage() {
               ["학교", RESEARCH_OVERVIEW.school],
               ["연구 영역", RESEARCH_OVERVIEW.area],
               ["연구 기간", RESEARCH_OVERVIEW.period],
+              ["연구 대상", RESEARCH_OVERVIEW.target],
               ["교수·학습 모델", RESEARCH_OVERVIEW.model],
             ].map(([label, value]) => (
               <Card key={label}>
@@ -121,6 +129,30 @@ export default function AboutPage() {
               </dd>
             </Card>
           </dl>
+        </Section>
+
+        <Section
+          title="연구의 목적"
+          description="2022 개정 교육과정의 방향성을 반영해 다음 세 가지를 목적으로 연구를 운영합니다."
+        >
+          <ol className="grid gap-4 lg:grid-cols-3">
+            {RESEARCH_PURPOSES.map((purpose, index) => (
+              <li key={purpose}>
+                <Card className="h-full">
+                  <span className="flex h-8 w-8 items-center justify-center rounded-full bg-brand-600 text-sm font-bold text-white">
+                    {index + 1}
+                  </span>
+                  <p className="mt-3 text-sm leading-7 text-ink-700">{purpose}</p>
+                </Card>
+              </li>
+            ))}
+          </ol>
+          <div className="mt-5 rounded-2xl border border-brand-100 bg-brand-50/60 p-5">
+            <p className="text-xs font-black tracking-[0.16em] text-brand-700">
+              종합 목표
+            </p>
+            <p className="mt-2 text-sm leading-7 text-ink-800">{RESEARCH_GOAL}</p>
+          </div>
         </Section>
 
         <Section
