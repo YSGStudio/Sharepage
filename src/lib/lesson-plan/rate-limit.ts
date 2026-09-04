@@ -1,7 +1,7 @@
 import { createSupabaseAdminClient } from "@/lib/supabase/admin";
 
 /** IP당 하루 허용 횟수 (R20) */
-export const DAILY_LIMIT = 10;
+export const DAILY_LIMIT = 5;
 
 /**
  * KST(UTC+9) 기준 오늘 날짜를 YYYY-MM-DD 로 반환한다.

@@ -43,7 +43,7 @@
 - BRIDGE 지도안 생성·다운로드는 로그인 여부와 관계없이 누구나 가능하도록 확장함. 단, 결과를 계정에 "저장"하고 다시 열람하는 기능은 로그인한 교사에게만 제공한다. 생성 API가 공개되면서 남용 방지를 위한 IP 기준 rate limit(R20)을 새 요구사항으로 추가함.
 - 교사 계정은 자체 회원가입 폼 → 운영자 승인 절차를 거친다(status: pending → approved). 운영자 계정은 사이트 UI로 만들지 않고 Supabase SQL로 직접 INSERT한다(role='admin', status='approved').
 - 수업자료·사진은 승인 절차 없이 즉시 공개로 확정(소감만 승인 필요, 기존 결정 유지·확정).
-- 지도안 생성 API rate limit은 IP당 하루 10회, 매일 자정(KST) 기준 초기화로 확정. `api_rate_limits` 테이블(ip_address, request_date, count)로 구현.
+- 지도안 생성 API rate limit은 IP당 하루 5회, 매일 자정(KST) 기준 초기화로 확정. `api_rate_limits` 테이블(ip_address, request_date, count)로 구현.
 - '수업자료 업데이트/공유'와 '지도안 생성기'는 별도 메뉴로 유지 확정.
 
 ## 미확인/추가 확인 필요
