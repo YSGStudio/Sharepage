@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { isGallerySectionKey } from "@/content/gallery-sections";
 import { requireApprovedTeacher } from "@/lib/guards";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import {
@@ -6,18 +7,8 @@ import {
   buildStoragePath,
   checkFile,
   MAX_IMAGE_BYTES,
+  PHOTOS_BUCKET,
 } from "@/lib/upload";
-
-export const PHOTOS_BUCKET = "photos";
-
-export const PHOTO_CATEGORIES = [
-  "수업 나눔",
-  "프로젝트 활동",
-  "교내 연수",
-  "공개 수업",
-  "학생 산출물",
-  "기타",
-] as const;
 
 /** 운영 사진 업로드 (R14). 승인된 교사만 가능. */
 export async function POST(request: Request) {
@@ -37,6 +28,14 @@ export async function POST(request: Request) {
   const caption = String(form.get("caption") ?? "").trim();
   const category = String(form.get("category") ?? "").trim();
   const file = form.get("file");
+
+  // 분류는 앨범 섹션 키(`과제id:추진내용번호`)만 받는다. 비워 두면 '미분류'.
+  if (category && !isGallerySectionKey(category)) {
+    return NextResponse.json(
+      { error: "분류 값이 올바르지 않습니다." },
+      { status: 400 },
+    );
+  }
 
   const fileError = checkFile(file instanceof File ? file : null, {
     maxBytes: MAX_IMAGE_BYTES,

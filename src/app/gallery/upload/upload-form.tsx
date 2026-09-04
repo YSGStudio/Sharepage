@@ -3,16 +3,8 @@
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { Field, FormMessage, Select, TextArea } from "@/components/form";
+import { GALLERY_SECTIONS } from "@/content/gallery-sections";
 import { ALLOWED_IMAGE_TYPES, MAX_IMAGE_BYTES } from "@/lib/upload";
-
-const CATEGORIES = [
-  "수업 나눔",
-  "프로젝트 활동",
-  "교내 연수",
-  "공개 수업",
-  "학생 산출물",
-  "기타",
-];
 
 export function PhotoUploadForm() {
   const router = useRouter();
@@ -93,13 +85,24 @@ export function PhotoUploadForm() {
         />
       )}
 
-      <Field label="분류" htmlFor="category">
+      <Field
+        label="분류"
+        htmlFor="category"
+        hint="연구 과제와 주요 추진 내용을 고르면 앨범의 해당 섹션에 들어갑니다."
+      >
         <Select id="category" name="category" defaultValue="">
-          <option value="">선택 안 함</option>
-          {CATEGORIES.map((c) => (
-            <option key={c} value={c}>
-              {c}
-            </option>
+          <option value="">선택 안 함 (미분류)</option>
+          {GALLERY_SECTIONS.map((section) => (
+            <optgroup
+              key={section.taskId}
+              label={`${section.label}. ${section.title}`}
+            >
+              {section.subsections.map((sub, index) => (
+                <option key={sub.key} value={sub.key}>
+                  {index + 1}. {sub.title}
+                </option>
+              ))}
+            </optgroup>
           ))}
         </Select>
       </Field>

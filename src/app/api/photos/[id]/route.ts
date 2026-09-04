@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import { requireAdmin } from "@/lib/guards";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import type { Photo } from "@/lib/supabase/types";
-import { PHOTOS_BUCKET } from "../route";
+import { PHOTOS_BUCKET } from "@/lib/upload";
 
 /** 사진 삭제 (R16). 운영자만 가능 (AC7). */
 export async function DELETE(

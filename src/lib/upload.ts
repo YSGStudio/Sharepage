@@ -3,12 +3,25 @@
 export const MAX_FILE_BYTES = 20 * 1024 * 1024; // 20MB
 export const MAX_IMAGE_BYTES = 10 * 1024 * 1024; // 10MB
 
+/** PDF 첫 페이지로 만든 표지 이미지 상한. 원본 PDF 보다 훨씬 작아야 한다. */
+export const MAX_THUMB_BYTES = 3 * 1024 * 1024; // 3MB
+
+/** Supabase Storage 버킷 이름. 라우트 파일에서 내보내면 Next 타입 검사에 걸려 여기에 둔다. */
+export const PHOTOS_BUCKET = "photos";
+export const NEWS_BUCKET = "news";
+
 export const ALLOWED_IMAGE_TYPES = [
   "image/jpeg",
   "image/png",
   "image/webp",
   "image/gif",
 ];
+
+/** 브릿지 뉴스 본문 */
+export const ALLOWED_PDF_TYPES = ["application/pdf"];
+
+/** 업로드 화면이 만들어 보내는 표지 이미지 */
+export const ALLOWED_THUMB_TYPES = ["image/jpeg", "image/png"];
 
 /**
  * Storage 경로로 안전한 파일명을 만든다.
