@@ -33,6 +33,11 @@ const nextConfig: NextConfig = {
   images: {
     remotePatterns: supabaseImagePattern(),
   },
+  // 지도안 생성 프롬프트는 src/content/lesson-plan 의 마크다운을 런타임에 읽는다.
+  // import 가 아니라 fs 로 읽으므로 추적에 잡히지 않아 직접 포함시킨다.
+  outputFileTracingIncludes: {
+    "/api/lesson-plan/generate": ["src/content/lesson-plan/**/*"],
+  },
 };
 
 export default nextConfig;

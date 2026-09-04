@@ -208,7 +208,10 @@ describe("지도안 저장 — 승인된 교사만 (R11, R22, AC12)", () => {
     content: "생성된 지도안",
     input: {
       grade: "4학년",
+      semester: "1학기",
       subject: "과학",
+      unit: "2단원 물질의 성질",
+      period: "3/6차시",
       achievementStandard: "[4과05-01] …",
       goal: "분류할 수 있다",
       task: "분류하기",

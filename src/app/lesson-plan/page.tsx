@@ -7,7 +7,7 @@ import { LessonPlanGenerator } from "./generator";
 export const metadata: Metadata = {
   title: "BRIDGE 지도안 만들기",
   description:
-    "학년·과목·성취기준 등을 입력하면 BRIDGE 6단계 지도안 초안을 만들어 드립니다. 로그인 없이 바로 쓰고 내려받을 수 있습니다.",
+    "학년·교과·성취기준 등을 입력하면 수업 나눔 양식 그대로 1쪽 개요면과 2쪽 전개면을 갖춘 BRIDGE 교수·학습과정안 초안을 만들어 드립니다. 로그인 없이 바로 쓰고 내려받을 수 있습니다.",
 };
 
 export default async function LessonPlanPage() {
@@ -20,7 +20,7 @@ export default async function LessonPlanPage() {
       <PageHeader
         eyebrow="도구"
         title="BRIDGE 지도안 만들기"
-        description="필수 6항목을 입력하면 BRIDGE 6단계 지도안 초안이 만들어집니다. 로그인하지 않아도 만들고 내려받을 수 있습니다."
+        description="필수 항목을 입력하면 BR(문제 발견·인식)·ID(해결방법 탐색·문제해결)·GE(공유·성찰) 3단계로 1쪽 개요면과 2쪽 전개면이 만들어집니다. 로그인하지 않아도 만들고 내려받을 수 있습니다."
       />
 
       <Container>

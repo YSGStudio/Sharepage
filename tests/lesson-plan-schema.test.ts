@@ -1,14 +1,16 @@
 import { describe, expect, it } from "vitest";
 import {
   DEFAULT_DURATION,
-  DEFAULT_PERIOD,
   REQUIRED_FIELDS,
   validateLessonPlanInput,
 } from "@/lib/lesson-plan/schema";
 
 const COMPLETE_INPUT = {
   grade: "4학년",
+  semester: "1학기",
   subject: "과학",
+  unit: "2단원 물질의 성질",
+  period: "3/6차시",
   achievementStandard:
     "[4과05-01] 여러 가지 물체를 관찰하여 물질의 성질을 설명할 수 있다.",
   goal: "물질의 성질에 따라 물체를 분류할 수 있다.",
@@ -17,8 +19,8 @@ const COMPLETE_INPUT = {
     "물질의 성질을 두 가지 이상 근거로 들어 물체를 정확히 분류하고 기준을 설명할 수 있다.",
 };
 
-describe("validateLessonPlanInput — 필수 6항목 (R9)", () => {
-  it("6항목이 모두 채워지면 통과한다", () => {
+describe("validateLessonPlanInput — 스킬의 필수 입력 (R9)", () => {
+  it("필수 항목이 모두 채워지면 통과한다", () => {
     const result = validateLessonPlanInput(COMPLETE_INPUT);
     expect(result.ok).toBe(true);
   });
@@ -52,35 +54,53 @@ describe("validateLessonPlanInput — 필수 6항목 (R9)", () => {
     }
   });
 
-  it("본문이 아예 없어도 터지지 않고 6항목 모두 누락으로 처리한다", () => {
+  it("본문이 아예 없어도 터지지 않고 필수 항목 모두 누락으로 처리한다", () => {
     const result = validateLessonPlanInput(undefined);
     expect(result.ok).toBe(false);
     if (!result.ok) expect(result.missing).toEqual([...REQUIRED_FIELDS]);
   });
 
-  it("선택 입력이 없으면 기본값을 채운다", () => {
+  it("수업시간을 비우면 기본값 40분을 채우고, 나머지 선택 입력은 빈 문자열로 둔다", () => {
     const result = validateLessonPlanInput(COMPLETE_INPUT);
     expect(result.ok).toBe(true);
     if (result.ok) {
-      expect(result.value.period).toBe(DEFAULT_PERIOD);
       expect(result.value.duration).toBe(DEFAULT_DURATION);
       expect(result.value.digitalTools).toBe("");
+      expect(result.value.classroom).toBe("");
+      expect(result.value.competencies).toBe("");
+      expect(result.value.textbookPages).toBe("");
+      expect(result.value.lessonDate).toBe("");
     }
   });
 
   it("선택 입력이 있으면 그대로 유지한다", () => {
     const result = validateLessonPlanInput({
       ...COMPLETE_INPUT,
-      period: "3/5차시",
       duration: "80분",
       digitalTools: "패들렛, 구글 슬라이드",
+      classroom: "4학년 2반",
+      competencies: "과학적 탐구능력, 과학적 문제해결력",
+      textbookPages: "42-45쪽",
+      lessonDate: "2026.5.26.(화)",
     });
     expect(result.ok).toBe(true);
     if (result.ok) {
-      expect(result.value.period).toBe("3/5차시");
       expect(result.value.duration).toBe("80분");
       expect(result.value.digitalTools).toBe("패들렛, 구글 슬라이드");
+      expect(result.value.classroom).toBe("4학년 2반");
+      expect(result.value.competencies).toBe("과학적 탐구능력, 과학적 문제해결력");
+      expect(result.value.textbookPages).toBe("42-45쪽");
+      expect(result.value.lessonDate).toBe("2026.5.26.(화)");
     }
+  });
+
+  it("교과서 쪽수가 없어도 통과한다 — 교과서가 없는 차시가 있다", () => {
+    const result = validateLessonPlanInput({
+      ...COMPLETE_INPUT,
+      subject: "창의적 체험활동",
+      textbookPages: "",
+    });
+    expect(result.ok).toBe(true);
   });
 
   it("입력값의 앞뒤 공백을 정리한다", () => {

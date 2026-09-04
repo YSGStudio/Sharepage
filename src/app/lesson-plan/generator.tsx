@@ -14,26 +14,38 @@ import {
 
 const EMPTY: LessonPlanInput = {
   grade: "",
+  semester: "",
   subject: "",
+  unit: "",
+  period: "",
   achievementStandard: "",
   goal: "",
   task: "",
   evalCriteriaTop: "",
-  period: "",
+  textbookPages: "",
+  classroom: "",
+  lessonDate: "",
+  competencies: "",
   digitalTools: "",
   duration: "",
 };
 
 const EXAMPLE: LessonPlanInput = {
   grade: "4학년",
+  semester: "1학기",
   subject: "과학",
+  unit: "2단원 물질의 성질",
+  period: "3/6차시",
   achievementStandard:
     "[4과05-01] 여러 가지 물체를 관찰하여 물질의 성질을 설명할 수 있다.",
   goal: "물질의 성질에 따라 물체를 분류하고 그 기준을 설명할 수 있다.",
   task: "교실에서 찾은 물체를 성질을 기준으로 분류하고, 왜 그렇게 나누었는지 모둠에서 설명하기",
   evalCriteriaTop:
     "물질의 성질을 두 가지 이상 근거로 들어 물체를 정확히 분류하고, 분류 기준을 친구가 이해하도록 설명할 수 있다.",
-  period: "3/6차시",
+  textbookPages: "42-45쪽",
+  classroom: "4학년 2반",
+  lessonDate: "2026.5.26.(화)",
+  competencies: "과학적 탐구능력, 과학적 문제해결력",
   digitalTools: "패들렛",
   duration: "40분",
 };
@@ -112,10 +124,10 @@ export function LessonPlanGenerator({
   function handleDownload() {
     if (!result || !resultInput) return;
     const header = [
-      "# BRIDGE 지도안 (AI 생성 초안 — 교사 검수 필요)",
+      "# BRIDGE 교수·학습과정안 (AI 생성 초안 — 교사 검수 필요)",
       "",
-      `- 학년: ${resultInput.grade}`,
-      `- 과목: ${resultInput.subject}`,
+      `- 학년·학기·교과: ${resultInput.grade} ${resultInput.semester} ${resultInput.subject}`,
+      `- 단원·차시: ${resultInput.unit} / ${resultInput.period}`,
       `- 생성일: ${new Date().toLocaleString("ko-KR")}`,
       "",
       "---",
@@ -159,6 +171,36 @@ export function LessonPlanGenerator({
   const ring = (field: RequiredField) =>
     invalid(field) ? "border-red-400 focus:border-red-500 focus:ring-red-200" : "";
 
+  /** 한 줄짜리 필수 입력 */
+  const shortField = (field: RequiredField, placeholder: string) => (
+    <Field label={FIELD_LABELS[field]} htmlFor={field} required>
+      <TextInput
+        id={field}
+        value={input[field]}
+        onChange={(e) => set(field)(e.target.value)}
+        placeholder={placeholder}
+        aria-invalid={invalid(field)}
+        className={ring(field)}
+      />
+    </Field>
+  );
+
+  /** 선택 입력 (한 줄) */
+  const optionalField = (
+    field: "textbookPages" | "classroom" | "lessonDate" | "competencies" | "digitalTools" | "duration",
+    placeholder: string,
+    hint?: string,
+  ) => (
+    <Field label={FIELD_LABELS[field]} htmlFor={field} hint={hint}>
+      <TextInput
+        id={field}
+        value={input[field]}
+        onChange={(e) => set(field)(e.target.value)}
+        placeholder={placeholder}
+      />
+    </Field>
+  );
+
   return (
     <div className="grid gap-8 lg:grid-cols-[minmax(0,22rem)_minmax(0,1fr)] lg:items-start">
       {/* 입력 폼 */}
@@ -181,32 +223,22 @@ export function LessonPlanGenerator({
 
           {message && <FormMessage tone="error">{message}</FormMessage>}
 
-          <Field label={FIELD_LABELS.grade} htmlFor="grade" required>
-            <TextInput
-              id="grade"
-              value={input.grade}
-              onChange={(e) => set("grade")(e.target.value)}
-              placeholder="4학년"
-              aria-invalid={invalid("grade")}
-              className={ring("grade")}
-            />
-          </Field>
+          <div className="grid gap-4 sm:grid-cols-2">
+            {shortField("grade", "4학년")}
+            {shortField("semester", "1학기")}
+          </div>
 
-          <Field label={FIELD_LABELS.subject} htmlFor="subject" required>
-            <TextInput
-              id="subject"
-              value={input.subject}
-              onChange={(e) => set("subject")(e.target.value)}
-              placeholder="과학"
-              aria-invalid={invalid("subject")}
-              className={ring("subject")}
-            />
-          </Field>
+          {shortField("subject", "과학")}
+
+          <div className="grid gap-4 sm:grid-cols-2">
+            {shortField("unit", "2단원 물질의 성질")}
+            {shortField("period", "3/6차시")}
+          </div>
 
           <Field
             label={FIELD_LABELS.achievementStandard}
             htmlFor="achievementStandard"
-            hint="2022 개정 교육과정 성취기준을 그대로 붙여넣어 주세요."
+            hint="2022 개정 교육과정 성취기준을 코드까지 그대로 붙여넣어 주세요."
             required
           >
             <TextArea
@@ -232,7 +264,12 @@ export function LessonPlanGenerator({
             />
           </Field>
 
-          <Field label={FIELD_LABELS.task} htmlFor="task" required>
+          <Field
+            label={FIELD_LABELS.task}
+            htmlFor="task"
+            hint="학생이 실제로 만들거나 해내야 하는 산출물·활동입니다."
+            required
+          >
             <TextArea
               id="task"
               rows={3}
@@ -247,7 +284,7 @@ export function LessonPlanGenerator({
           <Field
             label={FIELD_LABELS.evalCriteriaTop}
             htmlFor="evalCriteriaTop"
-            hint="'상' 수준 서술만 적어 주세요. 중·하는 이 기준에 맞춰 만들어집니다."
+            hint="'상' 수준 서술만 적어 주세요. 평가요소와 중·하는 이 문장에서 역산합니다."
             required
           >
             <TextArea
@@ -263,37 +300,23 @@ export function LessonPlanGenerator({
 
           <details className="rounded-lg border border-brand-100 p-3">
             <summary className="cursor-pointer text-sm font-medium text-brand-700">
-              선택 입력
+              선택 입력 (1쪽 개요면에 그대로 들어갑니다)
             </summary>
             <div className="mt-3 space-y-4">
-              <Field label={FIELD_LABELS.period} htmlFor="period" hint="비우면 본시">
-                <TextInput
-                  id="period"
-                  value={input.period}
-                  onChange={(e) => set("period")(e.target.value)}
-                  placeholder="3/6차시"
-                />
-              </Field>
-              <Field
-                label={FIELD_LABELS.duration}
-                htmlFor="duration"
-                hint="비우면 40분"
-              >
-                <TextInput
-                  id="duration"
-                  value={input.duration}
-                  onChange={(e) => set("duration")(e.target.value)}
-                  placeholder="40분"
-                />
-              </Field>
-              <Field label={FIELD_LABELS.digitalTools} htmlFor="digitalTools">
-                <TextInput
-                  id="digitalTools"
-                  value={input.digitalTools}
-                  onChange={(e) => set("digitalTools")(e.target.value)}
-                  placeholder="패들렛, 구글 슬라이드"
-                />
-              </Field>
+              {optionalField("textbookPages", "42-45쪽", "교과서가 없는 차시는 비워 두세요.")}
+              {optionalField("classroom", "4학년 2반")}
+              {optionalField("lessonDate", "2026.5.26.(화)")}
+              {optionalField(
+                "competencies",
+                "과학적 탐구능력, 과학적 문제해결력",
+                "교과 교육과정 역량 2개. 비우면 (제안)으로 채웁니다.",
+              )}
+              {optionalField("duration", "40분", "비우면 40분")}
+              {optionalField(
+                "digitalTools",
+                "패들렛, 캔바",
+                "차시당 1~3개면 충분합니다. 비우면 차시에 맞는 도구를 제안합니다.",
+              )}
             </div>
           </details>
 
@@ -317,9 +340,10 @@ export function LessonPlanGenerator({
         {!result && !loading && (
           <Card className="border-dashed">
             <p className="text-sm leading-relaxed text-ink-500">
-              왼쪽에 필수 6항목을 입력하고 <strong>지도안 만들기</strong>를
-              누르면 여기에 결과가 나타납니다. 처음이라면 <strong>예시
-              채우기</strong>로 형식을 먼저 확인해 보세요.
+              왼쪽에 필수 {REQUIRED_FIELDS.length}항목을 입력하고{" "}
+              <strong>지도안 만들기</strong>를 누르면 수업 나눔 양식 그대로
+              1쪽 개요면과 2쪽 전개면이 만들어집니다. 처음이라면{" "}
+              <strong>예시 채우기</strong>로 형식을 먼저 확인해 보세요.
             </p>
           </Card>
         )}
@@ -327,8 +351,8 @@ export function LessonPlanGenerator({
         {loading && (
           <Card>
             <p className="text-sm text-ink-500">
-              BRIDGE 6단계에 맞춰 지도안을 작성하고 있습니다. 20초 정도 걸릴 수
-              있습니다…
+              BR(문제 발견·인식) · ID(해결방법 탐색·문제해결) · GE(공유·성찰)
+              3단계로 지도안을 작성하고 있습니다. 30초 정도 걸릴 수 있습니다…
             </p>
           </Card>
         )}

@@ -1,84 +1,84 @@
 import type { LessonPlanInput } from "./schema";
+import { FORMAT_SPEC_DOC, PHRASEBANK_DOC, SKILL_DOC } from "./skill";
 
 /**
  * BRIDGE 지도안 생성 시스템 프롬프트 (R10).
- * elementary-lesson-plan 스킬의 6단계 정의·8섹션 출력 형식·금지 규칙을 그대로 옮겼다.
+ *
+ * 사양은 elementary-lesson-plan 스킬 문서 세 개가 그대로 원본이다
+ * (`src/content/lesson-plan/`). 여기서는 문서를 붙이고, 채팅이 아니라
+ * 웹 폼에서 쓰이기 때문에 달라지는 부분만 앞에 덧붙인다.
  */
-export const LESSON_PLAN_SYSTEM_PROMPT = `당신은 초등학교 수업 설계를 돕는 교육과정 전문가입니다.
-교사가 준 입력만을 근거로 BRIDGE 교수·학습 모델 기반 지도안을 작성합니다.
 
-## BRIDGE 6단계 (단계명을 절대 바꾸지 않는다)
+/** 스킬 문서를 웹 생성기에 맞게 조정하는 부분 */
+const WEB_ADAPTATION = `당신은 언남초등학교 BRIDGE 프로젝트 모형 기반 초등 교수·학습과정안을 쓰는 교육과정 전문가입니다.
+아래 세 문서(SKILL / FORMAT-SPEC / PHRASEBANK)가 작성 사양이며, 그 규칙을 그대로 따릅니다.
 
-1. **Buzz (생각 깨우기)** — 도입. 주제 관련 경험·궁금증을 자유롭게 꺼내며 관심을 만든다.
-2. **Related (연결하기)** — 도입. 선수학습·생활 경험과 학습 문제를 연결하고 학습 목표를 학생 언어로 세운다.
-3. **Investigate Together (함께 탐구하기)** — 전개. 자료를 모으고 비교하며 협력적으로 탐구한다.
-4. **Do & Make (해보고 만들기)** — 전개. 탐구 결과를 실제 산출물로 만든다.
-5. **Give & Share (나누기)** — 전개→정리. 만든 것을 나누고 서로에게 배운다.
-6. **Evaluate & Grow (돌아보고 자라기)** — 정리. 도달을 스스로 점검하고 다음 학습 방향을 세운다.
+## 이 화면에서만 다른 점
 
-## 출력 형식 (반드시 아래 8개 섹션을 이 순서로, 마크다운으로 작성)
+- 필수 입력은 이미 웹 폼에서 모두 받았습니다. **되묻지 말고 곧바로 작성합니다.**
+  입력이 비어 있으면 폼에서 막히므로, 사용자에게 질문하는 문장을 쓰지 않습니다.
+- 파일(.hwp/.docx/.pdf)을 만들지 않습니다. **마크다운 텍스트만** 출력합니다.
+- 1쪽 개요면과 2쪽 전개면을 **항상 함께** 출력합니다. 1쪽만 쓰고 끝내지 않습니다.
+- 표는 교사가 한글 표에 옮겨 붙일 수 있도록 마크다운 표로 그립니다.
+  2쪽 전개면은 \`| BRIDGE 단계 | 교수·학습활동 | 자료 및 지도전략 |\` 3열 표로 만들고,
+  칸 안의 줄바꿈은 \`<br>\` 로 표시합니다.
+- 교사가 주지 않은 선택 입력을 채울 때는 스킬 규칙대로 "(제안)" 을 붙입니다.
+- 마지막 줄에 이 지도안이 AI가 만든 초안이며 교사의 검수·수정이 필요하다는 안내를 한 문장 넣습니다.
+- 한국어로 작성합니다.`;
 
-### 1. 기본정보
-학년, 과목, 단원/차시, 수업시간을 표로 정리한다.
+export const LESSON_PLAN_SYSTEM_PROMPT = `${WEB_ADAPTATION}
 
-### 2. 학습목표
-교사가 준 도달목표를 학생이 읽을 문장으로 다듬어 1~2개 제시한다. 내용을 새로 만들지 않는다.
+===== SKILL =====
 
-### 3. 성취기준
-교사가 입력한 성취기준을 **그대로** 옮겨 적는다. 코드나 문구를 창작하거나 바꾸지 않는다.
+${SKILL_DOC}
 
-### 4. 교수학습자료
-교사용·학생용 자료와 디지털 도구를 나누어 적는다. 디지털 도구는 입력이 있을 때만 적고, 각 도구가 어느 단계에서 무슨 목적으로 쓰이는지 함께 밝힌다.
+===== FORMAT-SPEC (칸별 작성 규칙·분량) =====
 
-### 5. BRIDGE 단계별 과정안
-6단계 각각에 대해 다음 5가지를 빠짐없이 쓴다.
-- **교사 발문**: 실제로 말할 문장 형태로 2~3개
-- **예상 학생 반응**: 구체적인 반응 예시 2~3개
-- **디지털 도구 활용 목적**: 이 단계에서 도구를 왜 쓰는지 (쓰지 않으면 "미사용"이라고 명시)
-- **학생 주도성 요소**: 선택 / 책임 / 학생 목소리 / 협력 중 해당하는 것과 그 이유
-- **유의점**: 이 단계에서 교사가 놓치기 쉬운 점
+${FORMAT_SPEC_DOC}
 
-각 단계의 배분 시간도 함께 적어 총합이 수업시간과 맞게 한다.
+===== PHRASEBANK (도구·문형) =====
 
-### 6. 평가계획
-- **평가요소**: 무엇을 볼 것인가
-- **채점기준표**: 상/중/하 3단계. '상'은 교사가 입력한 평가기준을 **그대로** 쓰고, '중'과 '하'는 그 '상' 기준을 낮춘 형태로 일관되게 작성한다.
-- **평가 방법·시기·피드백 방안**
+${PHRASEBANK_DOC}`;
 
-### 7. 지도상의 유의점
-학생 수준, 안전, 시간 운영, 디지털 기기 사용 관련 유의점을 3~5개 적는다.
-
-### 8. 검수 안내
-이 지도안이 AI가 만든 초안이며 교사의 검수와 수정이 반드시 필요하다는 문장을 넣는다.
-
-## 반드시 지킬 것
-
-- 성취기준, 도달목표, 수행과제, 평가기준 '상'은 교사가 준 것을 **그대로** 반영한다. 임의로 만들거나 바꾸지 않는다.
-- BRIDGE 단계명을 "도입·전개·정리"로 바꿔 쓰지 않는다. 단계명은 영문 + 한글 병기로 쓴다.
-- 입력에 없는 사실(교과서 쪽수, 특정 학교 사정 등)을 지어내지 않는다.
-- 파일을 만들지 않는다. 마크다운 텍스트만 출력한다.
-- 한국어로 작성한다.`;
+/** 값이 있는 항목만 `이름: 값` 줄로 만든다. */
+function line(label: string, value: string | undefined): string | null {
+  const trimmed = value?.trim();
+  return trimmed ? `${label}: ${trimmed}` : null;
+}
 
 /** 교사 입력을 사용자 메시지로 조립한다. */
 export function buildUserPrompt(input: LessonPlanInput): string {
-  const lines = [
-    `학년: ${input.grade}`,
-    `과목: ${input.subject}`,
+  const required = [
+    `학년·학기·교과: ${input.grade} ${input.semester} ${input.subject}`,
+    `단원: ${input.unit}`,
+    `차시: ${input.period}`,
     `성취기준(2022 개정): ${input.achievementStandard}`,
-    `도달목표: ${input.goal}`,
+    `학습목표: ${input.goal}`,
     `수행과제: ${input.task}`,
     `평가기준 '상': ${input.evalCriteriaTop}`,
-    `차시: ${input.period || "본시"}`,
-    `수업시간: ${input.duration || "40분"}`,
   ];
 
-  if (input.digitalTools) {
-    lines.push(`활용할 디지털 도구: ${input.digitalTools}`);
-  } else {
-    lines.push(
-      `활용할 디지털 도구: 지정 없음 (도구가 꼭 필요한 단계에만 일반적인 도구 유형으로 제안하고, 특정 제품명을 단정하지 말 것)`,
-    );
-  }
+  const optional = [
+    line("교과서 쪽수", input.textbookPages),
+    line("대상학급", input.classroom),
+    line("일시", input.lessonDate),
+    line("교과역량", input.competencies),
+    line("수업시간", input.duration),
+  ].filter((l): l is string => l !== null);
 
-  return `아래 조건으로 BRIDGE 지도안을 작성해 주세요.\n\n${lines.join("\n")}`;
+  optional.push(
+    input.digitalTools?.trim()
+      ? `활용할 디지털 도구: ${input.digitalTools.trim()}`
+      : "활용할 디지털 도구: 지정 없음 (PHRASEBANK 의 도구 목록에서 차시에 맞는 1~3개를 골라 '(제안)' 표시와 함께 제안할 것)",
+  );
+
+  return [
+    "아래 조건으로 BRIDGE 교수·학습과정안 1쪽(개요면)과 2쪽(전개면)을 작성해 주세요.",
+    "",
+    "## 교사가 제시한 필수 입력 (그대로 반영할 것)",
+    ...required,
+    "",
+    "## 선택 입력",
+    ...optional,
+  ].join("\n");
 }
