@@ -29,6 +29,22 @@ export interface TeachingMaterial {
   created_at: string;
 }
 
+/** 브릿지 뉴스 소식지 (0005_bridge_news.sql) */
+export interface BridgeNews {
+  id: string;
+  title: string;
+  issue_label: string | null;
+  /** YYYY-MM-DD */
+  published_on: string | null;
+  description: string | null;
+  file_path: string;
+  file_name: string;
+  /** PDF 첫 페이지 표지. 생성에 실패했으면 null */
+  thumb_path: string | null;
+  uploader_id: string | null;
+  created_at: string;
+}
+
 export interface Photo {
   id: string;
   storage_path: string;

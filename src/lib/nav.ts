@@ -42,6 +42,7 @@ export const NAV_GROUPS: NavGroup[] = [
     label: "자료 나눔",
     items: [
       { href: "/materials", label: "수업자료" },
+      { href: "/news", label: "브릿지 뉴스" },
       { href: "/gallery", label: "운영 사진" },
       { href: "/testimonials", label: "학부모·학생 소감" },
     ],

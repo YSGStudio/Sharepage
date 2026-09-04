@@ -21,6 +21,7 @@ Supabase 대시보드 → **SQL Editor** → **New query** 에
 | `migrations/0002_fix_rate_limit_grants.sql` | 지도안 rate limit 함수 권한 정리 |
 | `migrations/0003_timeline_activities.sql` | 월별 추진활동 테이블 `timeline_activities` (읽기 공개, 쓰기 운영자 전용) |
 | `migrations/0004_nav_items.sql` | 탭 메뉴 테이블 `nav_items` (읽기 공개, 쓰기 운영자 전용). 현재 메뉴 14개를 기본값으로 함께 넣는다 |
+| `migrations/0005_bridge_news.sql` | 브릿지 뉴스 테이블 `bridge_news` + Storage 버킷 `news` (읽기 공개, 등록은 승인 교사, 삭제는 운영자). `nav_items` 에 '브릿지 뉴스' 탭도 함께 넣는다 |
 
 `0003` 을 실행하기 전에는 `/timeline` 이 `src/content/timeline.ts` 의 기본 계획만
 보여주고, 운영자 화면(`/admin/timeline`)에서 등록을 시도하면 오류가 난다.
@@ -28,6 +29,10 @@ Supabase 대시보드 → **SQL Editor** → **New query** 에
 `0004` 를 실행하기 전에는 왼쪽 세로 메뉴가 `src/lib/nav.ts` 의 기본 목록으로
 동작하고, 운영자 화면(`/admin/nav`)에서 편집할 수 없다. 표가 비어 있으면
 `/admin/nav` 의 "기본 메뉴 가져오기" 버튼으로 다시 채울 수 있다.
+
+`0005` 를 실행하기 전에는 `/news` 가 "소식지를 불러오지 못했습니다" 안내만 보여주고
+업로드가 실패한다. `nav_items` 를 이미 쓰고 있다면 `0005` 실행 후 왼쪽 메뉴에
+'브릿지 뉴스' 탭이 생긴다 (순서·이름은 `/admin/nav` 에서 바꿀 수 있다).
 
 > 탭을 지워도 그 페이지 자체가 사라지는 것은 아니다. 메뉴에서만 빠지고
 > 주소로는 계속 들어갈 수 있다.
