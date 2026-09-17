@@ -1,13 +1,11 @@
-import { readFileSync, writeFileSync } from "node:fs";
-import { createRequire } from "node:module";
-import { dirname, join } from "node:path";
-import { HwpDocument, initSync } from "@rhwp/core";
-import { beforeAll, describe, expect, it } from "vitest";
-import {
-  lessonPlanToHtmlBlocks,
-  lessonPlanToPrintHtml,
-} from "@/lib/lesson-plan/export-html";
-import { buildLessonPlanHwp } from "@/lib/lesson-plan/export-hwp";
+import { writeFileSync } from "node:fs";
+import { Packer } from "docx";
+// docx 가 .docx(zip) 를 만들 때 쓰는 라이브러리다. 결과 XML 을 꺼내 확인하는 데 쓴다.
+import JSZip from "jszip";
+import { describe, expect, it } from "vitest";
+import { parseInline, parseLessonPlan } from "@/lib/lesson-plan/export-blocks";
+import { buildLessonPlanDocument } from "@/lib/lesson-plan/export-docx";
+import { lessonPlanToHtml, lessonPlanToPrintHtml } from "@/lib/lesson-plan/export-html";
 
 const SAMPLE = `## ■ 1쪽 — 개요면
 
@@ -26,6 +24,9 @@ const SAMPLE = `## ■ 1쪽 — 개요면
 - 성취기준: [4과05-01] 여러 가지 물체를 관찰한다.
 - 탐구질문: 왜 어떤 컵은 깨질까?
 
+1. 첫째 활동
+2. 둘째 활동
+
 ---
 
 ## ■ 2쪽 — 전개면
@@ -37,77 +38,67 @@ const SAMPLE = `## ■ 1쪽 — 개요면
 
 이 지도안은 AI가 만든 초안입니다.`;
 
-describe("lessonPlanToHtmlBlocks", () => {
-  it("모델 출력의 HTML 은 이스케이프하고 <br> 과 굵게만 살린다", () => {
-    const [html] = lessonPlanToHtmlBlocks(
-      '<script>alert(1)</script> **굵게** <img src=x onerror="a">',
-    );
+describe("parseLessonPlan", () => {
+  it("제목·문단·표·목록·수평선을 블록으로 나눈다", () => {
+    const blocks = parseLessonPlan(SAMPLE);
+    expect(blocks.map((b) => b.type)).toEqual([
+      "heading", "paragraph", "heading", "paragraph", "heading", "table",
+      "list", "list", "hr", "heading", "table", "paragraph",
+    ]);
+    // 줄 단위 항목은 한 문단 안의 줄로 남는다.
+    expect(blocks[1]).toMatchObject({ type: "paragraph" });
+    expect((blocks[1] as { text: unknown[] }).text).toHaveLength(3);
+    expect(blocks[10]).toMatchObject({ type: "table", hasHeader: true });
+    expect(blocks[5]).toMatchObject({ type: "table", hasHeader: true });
+  });
+
+  it("<br> 은 줄로, **굵게** 는 굵은 조각으로 나눈다", () => {
+    expect(parseInline("앞 **굵게** 뒤<br>둘째 줄")).toEqual([
+      [
+        { text: "앞 ", bold: false },
+        { text: "굵게", bold: true },
+        { text: " 뒤", bold: false },
+      ],
+      [{ text: "둘째 줄", bold: false }],
+    ]);
+  });
+});
+
+describe("PDF 인쇄용 HTML", () => {
+  it("모델 출력의 HTML 은 이스케이프하고 <br>·굵게만 태그로 만든다", () => {
+    const html = lessonPlanToHtml('<script>alert(1)</script> **굵게** <img src=x onerror="a">');
     expect(html).not.toContain("<script>");
     expect(html).not.toContain("<img");
     expect(html).toContain("&lt;script&gt;");
-    expect(html).toContain('<span style="font-weight:bold">굵게</span>');
-
-    const [cell] = lessonPlanToHtmlBlocks("| BR<br>(7') | a |");
-    expect(cell).toContain("BR<br>(7')");
+    expect(html).toContain("<b>굵게</b>");
+    expect(lessonPlanToHtml("| BR<br>(7') | a |")).toContain("<td>BR<br>(7')</td>");
   });
 
-  it("굵게가 섞인 줄은 보통 글자도 굵기를 명시한다", () => {
-    const [html] = lessonPlanToHtmlBlocks("앞 **굵게** 뒤");
-    expect(html).toBe(
-      '<p><span style="font-weight:normal">앞 </span><span style="font-weight:bold">굵게</span><span style="font-weight:normal"> 뒤</span></p>',
-    );
-  });
-
-  it("제목·문단·표·목록·수평선을 블록으로 나눈다", () => {
-    const blocks = lessonPlanToHtmlBlocks(SAMPLE);
-    expect(blocks.map((b) => b.match(/^<(\w+)/)?.[1])).toEqual([
-      "h2", "p", "h3", "p", "h3", "table", "ul", "hr", "h2", "table", "p",
-    ]);
-    // 줄 단위 항목은 한 문단 안에서 줄바꿈으로 남는다.
-    expect(blocks[1]).toBe(
-      "<p>[4학년 1학기 과학]<br>제목: 성질로 나누는 우리 교실 물체<br>연관검색어: #물질의성질 #분류기준</p>",
-    );
-    expect(blocks[9]).toContain('<th style="border:1px solid #000">BRIDGE 단계</th>');
-  });
-
-  it("인쇄용 문서는 제목을 이스케이프하고 인쇄를 호출한다", () => {
+  it("제목을 이스케이프하고 인쇄를 호출한다", () => {
     const html = lessonPlanToPrintHtml(SAMPLE, "<지도안>");
     expect(html).toContain("<title>&lt;지도안&gt;</title>");
     expect(html).toContain("window.print()");
   });
 });
 
-describe("buildLessonPlanHwp", () => {
-  beforeAll(() => {
-    const pkgDir = dirname(
-      createRequire(import.meta.url).resolve("@rhwp/core/package.json"),
-    );
-    initSync({ module: readFileSync(join(pkgDir, "rhwp_bg.wasm")) });
-    // 조판용 글자 폭 측정기. 테스트에서는 대략값이면 충분하다.
-    (globalThis as Record<string, unknown>).measureTextWidth = (
-      _font: string,
-      text: string,
-    ) => text.length * 12;
-  });
+describe("Word(.docx)", () => {
+  it("본문·표·굵게·줄바꿈이 들어간 .docx 를 만든다", async () => {
+    const buffer = await Packer.toBuffer(buildLessonPlanDocument(SAMPLE));
+    if (process.env.DOCX_SAMPLE_OUT) writeFileSync(process.env.DOCX_SAMPLE_OUT, buffer);
 
-  it("한글 5.0 파일을 만들고, 다시 열었을 때 표와 본문이 남아 있다", () => {
-    const bytes = buildLessonPlanHwp(HwpDocument, SAMPLE);
+    // .docx 는 zip 이다.
+    expect([...buffer.subarray(0, 2)]).toEqual([0x50, 0x4b]);
+    const xml = await (await JSZip.loadAsync(buffer)).file("word/document.xml")!.async("string");
 
-    // CFB(OLE2) 시그니처 — 한글 5.0 바이너리의 컨테이너
-    expect([...bytes.slice(0, 8)]).toEqual([0xd0, 0xcf, 0x11, 0xe0, 0xa1, 0xb1, 0x1a, 0xe1]);
-    if (process.env.HWP_SAMPLE_OUT) writeFileSync(process.env.HWP_SAMPLE_OUT, bytes);
-
-    const reopened = new HwpDocument(bytes);
-    const svg = Array.from({ length: reopened.pageCount() }, (_, p) =>
-      reopened.renderPageSvg(p),
-    ).join("");
-    reopened.free();
-
-    const text = [...svg.matchAll(/<text[^>]*>([^<]*)<\/text>/g)]
-      .map((m) => m[1])
-      .join("");
-    for (const expected of ["수업소개", "대상학급", "BRIDGE", "관찰평가", "초안입니다"]) {
-      expect(text.replace(/\s/g, "")).toContain(expected);
+    for (const text of ["수업소개", "대상학급", "BRIDGE 단계", "무엇이 달랐을까요?", "초안입니다"]) {
+      expect(xml).toContain(text);
     }
+    expect(xml.match(/<w:tbl>/g)).toHaveLength(2);
+    expect(xml).toContain("<w:br/>");
+    expect(xml).toMatch(/<w:b\/>[\s\S]*?물질의 성질/);
+    // 모델 출력의 < > 는 XML 로 이스케이프되어 문서가 깨지지 않는다.
+    const escaped = await Packer.toBuffer(buildLessonPlanDocument("<b>a</b> & c"));
+    const escapedXml = await (await JSZip.loadAsync(escaped)).file("word/document.xml")!.async("string");
+    expect(escapedXml).toContain("&lt;b&gt;a&lt;/b&gt; &amp; c");
   });
 });

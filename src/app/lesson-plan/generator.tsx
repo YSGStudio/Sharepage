@@ -51,20 +51,6 @@ const EXAMPLE: LessonPlanInput = {
   duration: "40분",
 };
 
-/** .md 로 내려받을 때 맨 앞에 붙이는 머리말 */
-function markdownHeader(input: LessonPlanInput): string {
-  return [
-    "# BRIDGE 교수·학습과정안 (AI 생성 초안 — 교사 검수 필요)",
-    "",
-    `- 학년·학기·교과: ${input.grade} ${input.semester} ${input.subject}`,
-    `- 단원·차시: ${input.unit} / ${input.period}`,
-    `- 생성일: ${new Date().toLocaleString("ko-KR")}`,
-    "",
-    "---",
-    "",
-  ].join("\n");
-}
-
 export function LessonPlanGenerator({
   canSave,
   dailyLimit,
@@ -355,7 +341,6 @@ export function LessonPlanGenerator({
               <LessonPlanExport
                 content={result}
                 baseName={`BRIDGE_지도안_${resultInput.grade}_${resultInput.subject}`}
-                markdownHeader={markdownHeader(resultInput)}
               />
             )}
 
