@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
 import { DeleteButton } from "@/components/delete-button";
+import { PdfOpenButton, PdfViewerHost } from "@/components/pdf-viewer";
 import { Alert, Badge, Card, Container, PageHeader } from "@/components/ui";
 import { getCurrentUser, isAdmin, isApprovedTeacher } from "@/lib/auth";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
@@ -74,7 +75,7 @@ export default async function NewsPage() {
       <PageHeader
         eyebrow="자료 나눔"
         title="브릿지 뉴스"
-        description="연구학교의 이야기를 담아 펴내는 소식지입니다. 표지를 누르면 PDF 가 새 창에서 열립니다."
+        description="연구학교의 이야기를 담아 펴내는 소식지입니다. 표지를 누르면 소식지를 바로 읽을 수 있습니다."
       />
 
       <Container>
@@ -114,11 +115,12 @@ export default async function NewsPage() {
             {withUrls.map((item) => (
               <li key={item.id}>
                 <Card className="flex h-full flex-col overflow-hidden p-0">
-                  <a
-                    href={item.url}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="relative block aspect-[3/4] w-full overflow-hidden border-b border-surface-variant bg-white"
+                  <PdfOpenButton
+                    url={item.url}
+                    title={item.title}
+                    fileName={item.file_name}
+                    ariaLabel={`${item.title} 읽기`}
+                    className="group relative block aspect-[3/4] w-full cursor-zoom-in overflow-hidden border-b border-surface-variant bg-white"
                   >
                     {item.coverUrl ? (
                       <Image
@@ -126,12 +128,15 @@ export default async function NewsPage() {
                         alt={`${item.title} 표지`}
                         fill
                         sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
-                        className="object-cover object-top transition-transform duration-300 hover:scale-[1.02]"
+                        className="object-cover object-top transition-transform duration-300 group-hover:scale-[1.02]"
                       />
                     ) : (
                       <CoverFallback />
                     )}
-                  </a>
+                    <span className="pointer-events-none absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/60 to-transparent px-4 pb-3 pt-10 text-left text-sm font-semibold text-white opacity-0 transition-opacity duration-200 group-hover:opacity-100 group-focus-visible:opacity-100">
+                      눌러서 읽기
+                    </span>
+                  </PdfOpenButton>
 
                   <div className="flex flex-1 flex-col p-5">
                     <div className="flex flex-wrap gap-1.5">
@@ -161,14 +166,14 @@ export default async function NewsPage() {
                     </p>
 
                     <div className="mt-auto flex flex-wrap items-center gap-2 border-t border-brand-100 pt-4">
-                      <a
-                        href={item.url}
-                        target="_blank"
-                        rel="noopener noreferrer"
+                      <PdfOpenButton
+                        url={item.url}
+                        title={item.title}
+                        fileName={item.file_name}
                         className="rounded-lg bg-brand-600 px-3 py-1.5 text-sm font-semibold text-white hover:bg-brand-700"
                       >
                         읽기
-                      </a>
+                      </PdfOpenButton>
                       <a
                         href={item.url}
                         download={item.file_name}
@@ -184,6 +189,8 @@ export default async function NewsPage() {
             ))}
           </ul>
         )}
+
+        <PdfViewerHost />
       </Container>
     </>
   );
