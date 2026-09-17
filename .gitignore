@@ -45,3 +45,6 @@ next-env.d.ts
 
 # pdf.js 실행 자산 (postinstall/prebuild 에서 node_modules 로부터 복사한다)
 /public/vendor/pdfjs/
+
+# rhwp WASM (postinstall/prebuild 에서 node_modules 로부터 복사한다)
+/public/vendor/rhwp/

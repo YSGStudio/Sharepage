@@ -10,10 +10,11 @@
     "typecheck": "tsc --noEmit",
     "test": "vitest run",
     "verify:db": "node scripts/verify-db.mjs",
-    "postinstall": "node scripts/copy-pdf-worker.mjs",
-    "prebuild": "node scripts/copy-pdf-worker.mjs"
+    "postinstall": "node scripts/copy-pdf-worker.mjs && node scripts/copy-rhwp-wasm.mjs",
+    "prebuild": "node scripts/copy-pdf-worker.mjs && node scripts/copy-rhwp-wasm.mjs"
   },
   "dependencies": {
+    "@rhwp/core": "0.8.6",
     "@supabase/ssr": "^0.12.4",
     "@supabase/supabase-js": "^2.112.3",
     "next": "16.3.1",

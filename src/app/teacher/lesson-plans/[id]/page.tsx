@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
+import { LessonPlanExport } from "@/components/lesson-plan-export";
 import { Markdown } from "@/components/markdown";
 import { Alert, Badge, Card, Container, PageHeader } from "@/components/ui";
 import { getCurrentUser } from "@/lib/auth";
@@ -79,6 +80,13 @@ export default async function SavedLessonPlanPage({
             ))}
           </dl>
         </Card>
+
+        <div className="mb-4">
+          <LessonPlanExport
+            content={data.generated_content}
+            baseName={`BRIDGE_지도안_${data.grade}_${data.subject}`}
+          />
+        </div>
 
         <Card>
           <Markdown content={data.generated_content} />

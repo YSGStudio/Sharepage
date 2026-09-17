@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useRef, useState } from "react";
 import { Field, FormMessage, TextArea, TextInput } from "@/components/form";
+import { LessonPlanExport } from "@/components/lesson-plan-export";
 import { Markdown } from "@/components/markdown";
 import { Alert, Card } from "@/components/ui";
 import {
@@ -49,6 +50,20 @@ const EXAMPLE: LessonPlanInput = {
   digitalTools: "패들렛",
   duration: "40분",
 };
+
+/** .md 로 내려받을 때 맨 앞에 붙이는 머리말 */
+function markdownHeader(input: LessonPlanInput): string {
+  return [
+    "# BRIDGE 교수·학습과정안 (AI 생성 초안 — 교사 검수 필요)",
+    "",
+    `- 학년·학기·교과: ${input.grade} ${input.semester} ${input.subject}`,
+    `- 단원·차시: ${input.unit} / ${input.period}`,
+    `- 생성일: ${new Date().toLocaleString("ko-KR")}`,
+    "",
+    "---",
+    "",
+  ].join("\n");
+}
 
 export function LessonPlanGenerator({
   canSave,
@@ -118,33 +133,6 @@ export function LessonPlanGenerator({
     } finally {
       setLoading(false);
     }
-  }
-
-  /** 로그인 여부와 무관하게 즉시 파일로 내려받는다 (R19, AC10). */
-  function handleDownload() {
-    if (!result || !resultInput) return;
-    const header = [
-      "# BRIDGE 교수·학습과정안 (AI 생성 초안 — 교사 검수 필요)",
-      "",
-      `- 학년·학기·교과: ${resultInput.grade} ${resultInput.semester} ${resultInput.subject}`,
-      `- 단원·차시: ${resultInput.unit} / ${resultInput.period}`,
-      `- 생성일: ${new Date().toLocaleString("ko-KR")}`,
-      "",
-      "---",
-      "",
-    ].join("\n");
-
-    const blob = new Blob([header + result], {
-      type: "text/markdown;charset=utf-8",
-    });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = `BRIDGE_지도안_${resultInput.grade}_${resultInput.subject}.md`;
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-    URL.revokeObjectURL(url);
   }
 
   async function handleSave() {
@@ -363,15 +351,15 @@ export function LessonPlanGenerator({
               반드시 선생님이 검수하고 수정한 뒤 사용해 주세요.
             </Alert>
 
-            <div className="flex flex-wrap gap-2">
-              <button
-                type="button"
-                onClick={handleDownload}
-                className="rounded-lg bg-brand-600 px-4 py-2 text-sm font-semibold text-white transition-colors hover:bg-brand-700"
-              >
-                파일로 내려받기 (.md)
-              </button>
+            {resultInput && (
+              <LessonPlanExport
+                content={result}
+                baseName={`BRIDGE_지도안_${resultInput.grade}_${resultInput.subject}`}
+                markdownHeader={markdownHeader(resultInput)}
+              />
+            )}
 
+            <div className="flex flex-wrap gap-2">
               {canSave ? (
                 <button
                   type="button"
