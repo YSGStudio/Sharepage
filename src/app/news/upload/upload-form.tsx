@@ -4,7 +4,9 @@ import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 import { Field, FormMessage, TextArea, TextInput } from "@/components/form";
 import { renderPdfCover, THUMB_EXTENSION, THUMB_MIME } from "@/lib/pdf-thumbnail";
-import { ALLOWED_PDF_TYPES, checkFile, MAX_FILE_BYTES } from "@/lib/upload";
+import { ALLOWED_PDF_TYPES, checkFile, MAX_NEWS_BYTES } from "@/lib/upload";
+
+const MAX_NEWS_MB = MAX_NEWS_BYTES / 1024 / 1024;
 
 /** 표지 만들기 진행 상태 */
 type CoverState =
@@ -59,7 +61,7 @@ export function NewsUploadForm() {
 
   function chooseFile(file: File | null) {
     const message = checkFile(file, {
-      maxBytes: MAX_FILE_BYTES,
+      maxBytes: MAX_NEWS_BYTES,
       allowedTypes: ALLOWED_PDF_TYPES,
     });
     if (message) {
@@ -90,7 +92,7 @@ export function NewsUploadForm() {
     const formData = new FormData(form);
 
     const fileError = checkFile(selectedFile, {
-      maxBytes: MAX_FILE_BYTES,
+      maxBytes: MAX_NEWS_BYTES,
       allowedTypes: ALLOWED_PDF_TYPES,
     });
     if (fileError) {
@@ -163,7 +165,7 @@ export function NewsUploadForm() {
       <Field
         label="PDF 파일"
         htmlFor="file"
-        hint="20MB 이하 PDF. 첫 페이지가 목록 표지로 자동 등록됩니다."
+        hint={`${MAX_NEWS_MB}MB 이하 PDF. 첫 페이지가 목록 표지로 자동 등록됩니다.`}
         required
       >
         <div
@@ -246,7 +248,7 @@ export function NewsUploadForm() {
                   또는 클릭하여 내 컴퓨터에서 선택
                 </span>
                 <span className="mt-3 rounded-full bg-white px-3 py-1 text-xs font-semibold text-brand-700 shadow-sm">
-                  최대 20MB
+                  최대 {MAX_NEWS_MB}MB
                 </span>
               </>
             )}

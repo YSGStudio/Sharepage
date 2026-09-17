@@ -33,6 +33,11 @@ const nextConfig: NextConfig = {
   images: {
     remotePatterns: supabaseImagePattern(),
   },
+  experimental: {
+    // proxy(src/proxy.ts)는 요청 본문을 이 크기까지만 받아 두고 나머지는 조용히 잘라낸다(기본 10MB).
+    // 브릿지 뉴스 PDF(최대 50MB)에 표지 이미지·폼 필드가 더해지므로 여유를 둔다.
+    proxyClientMaxBodySize: "55mb",
+  },
   // 지도안 생성 프롬프트는 src/content/lesson-plan 의 마크다운을 런타임에 읽는다.
   // import 가 아니라 fs 로 읽으므로 추적에 잡히지 않아 직접 포함시킨다.
   outputFileTracingIncludes: {

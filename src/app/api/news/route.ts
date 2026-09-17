@@ -6,7 +6,7 @@ import {
   ALLOWED_THUMB_TYPES,
   buildStoragePath,
   checkFile,
-  MAX_FILE_BYTES,
+  MAX_NEWS_BYTES,
   MAX_THUMB_BYTES,
   NEWS_BUCKET,
 } from "@/lib/upload";
@@ -74,7 +74,7 @@ export async function POST(request: Request) {
   }
 
   const fileError = checkFile(file instanceof File ? file : null, {
-    maxBytes: MAX_FILE_BYTES,
+    maxBytes: MAX_NEWS_BYTES,
     allowedTypes: ALLOWED_PDF_TYPES,
   });
   if (fileError) {

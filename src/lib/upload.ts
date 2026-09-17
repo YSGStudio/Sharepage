@@ -1,6 +1,12 @@
 /** 업로드 공통 규칙 */
 
 export const MAX_FILE_BYTES = 20 * 1024 * 1024; // 20MB
+/**
+ * 브릿지 뉴스 PDF 상한. 소식지는 사진이 많아 수업자료보다 크다.
+ * Supabase 무료 플랜의 파일당 상한(50MB)에 맞췄다.
+ * 요청이 proxy 를 거치므로 next.config.ts 의 proxyClientMaxBodySize 도 이보다 커야 한다.
+ */
+export const MAX_NEWS_BYTES = 50 * 1024 * 1024; // 50MB
 export const MAX_IMAGE_BYTES = 10 * 1024 * 1024; // 10MB
 
 /** PDF 첫 페이지로 만든 표지 이미지 상한. 원본 PDF 보다 훨씬 작아야 한다. */
