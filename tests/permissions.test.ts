@@ -75,6 +75,8 @@ const ADMIN: CurrentUser = {
 const { DELETE: deleteMaterial } = await import(
   "@/app/api/materials/[id]/route"
 );
+const { DELETE: deletePhoto } = await import("@/app/api/photos/[id]/route");
+const { DELETE: deleteNews } = await import("@/app/api/news/[id]/route");
 const { PATCH: patchTestimonial } = await import(
   "@/app/api/testimonials/[id]/route"
 );
@@ -99,32 +101,58 @@ beforeEach(() => {
   dbResult.error = null;
 });
 
-describe("수업자료 삭제 — 운영자만 (R16, AC7)", () => {
-  it("비로그인은 401", async () => {
-    getCurrentUser.mockResolvedValue(ANON);
-    const res = await deleteMaterial(new Request("http://localhost"), params());
-    expect(res.status).toBe(401);
-  });
+describe("게시물 삭제 — 승인된 교사 누구나 (R16, AC7)", () => {
+  const deletes = [
+    ["수업자료", deleteMaterial],
+    ["사진", deletePhoto],
+    ["브릿지 뉴스", deleteNews],
+  ] as const;
 
-  it("승인 대기 교사는 403", async () => {
-    getCurrentUser.mockResolvedValue(PENDING);
-    const res = await deleteMaterial(new Request("http://localhost"), params());
-    expect(res.status).toBe(403);
-    expect((await res.json()).error).toMatch(/승인 대기/);
-  });
+  describe.each(deletes)("%s", (_label, del) => {
+    it("비로그인은 401", async () => {
+      getCurrentUser.mockResolvedValue(ANON);
+      const res = await del(new Request("http://localhost"), params());
+      expect(res.status).toBe(401);
+    });
 
-  it("일반 교사는 403 — 운영자 권한 필요", async () => {
-    getCurrentUser.mockResolvedValue(TEACHER);
-    const res = await deleteMaterial(new Request("http://localhost"), params());
-    expect(res.status).toBe(403);
-    expect((await res.json()).error).toMatch(/운영자 권한/);
-  });
+    it("승인 대기 교사는 403", async () => {
+      getCurrentUser.mockResolvedValue(PENDING);
+      const res = await del(new Request("http://localhost"), params());
+      expect(res.status).toBe(403);
+      expect((await res.json()).error).toMatch(/승인 대기/);
+    });
 
-  it("운영자는 권한 검사를 통과한다", async () => {
-    getCurrentUser.mockResolvedValue(ADMIN);
-    const res = await deleteMaterial(new Request("http://localhost"), params());
-    // 대상 자료가 없으므로 404. 401/403 이 아니라는 것이 핵심이다.
-    expect(res.status).toBe(404);
+    it("거부된 계정은 403", async () => {
+      getCurrentUser.mockResolvedValue(REJECTED);
+      const res = await del(new Request("http://localhost"), params());
+      expect(res.status).toBe(403);
+    });
+
+    it("승인된 일반 교사는 권한 검사를 통과한다", async () => {
+      getCurrentUser.mockResolvedValue(TEACHER);
+      const res = await del(new Request("http://localhost"), params());
+      // 대상이 없으므로 404. 401/403 이 아니라는 것이 핵심이다.
+      expect(res.status).toBe(404);
+    });
+
+    it("승인된 교사는 남이 올린 게시물도 삭제한다", async () => {
+      getCurrentUser.mockResolvedValue(TEACHER);
+      dbResult.data = {
+        id: "target-1",
+        uploader_id: "someone-else",
+        file_path: "a.pdf",
+        storage_path: "a.jpg",
+        thumb_path: null,
+      };
+      const res = await del(new Request("http://localhost"), params());
+      expect(res.status).toBe(200);
+    });
+
+    it("운영자도 통과한다", async () => {
+      getCurrentUser.mockResolvedValue(ADMIN);
+      const res = await del(new Request("http://localhost"), params());
+      expect(res.status).toBe(404);
+    });
   });
 });
 

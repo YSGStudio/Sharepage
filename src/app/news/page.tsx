@@ -4,7 +4,7 @@ import Link from "next/link";
 import { DeleteButton } from "@/components/delete-button";
 import { PdfOpenButton, PdfViewerHost } from "@/components/pdf-viewer";
 import { Alert, Badge, Card, Container, PageHeader } from "@/components/ui";
-import { getCurrentUser, isAdmin, isApprovedTeacher } from "@/lib/auth";
+import { getCurrentUser, isApprovedTeacher } from "@/lib/auth";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import type { BridgeNews } from "@/lib/supabase/types";
 import { NEWS_BUCKET } from "@/lib/upload";
@@ -38,7 +38,6 @@ function CoverFallback() {
 
 export default async function NewsPage() {
   const user = await getCurrentUser().catch(() => null);
-  const admin = isAdmin(user);
   const canUpload = isApprovedTeacher(user);
 
   const supabase = await createSupabaseServerClient();
@@ -181,7 +180,7 @@ export default async function NewsPage() {
                       >
                         내려받기
                       </a>
-                      {admin && <DeleteButton endpoint={`/api/news/${item.id}`} />}
+                      {canUpload && <DeleteButton endpoint={`/api/news/${item.id}`} />}
                     </div>
                   </div>
                 </Card>

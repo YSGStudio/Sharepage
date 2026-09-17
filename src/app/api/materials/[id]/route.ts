@@ -1,18 +1,18 @@
 import { NextResponse } from "next/server";
-import { requireAdmin } from "@/lib/guards";
+import { requireApprovedTeacher } from "@/lib/guards";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import type { TeachingMaterial } from "@/lib/supabase/types";
 import { MATERIALS_BUCKET } from "../route";
 
 /**
  * 수업자료 삭제 (R16).
- * 운영자만 가능. 일반 교사가 호출하면 403 (AC7).
+ * 승인된 교사(운영자 포함)는 누가 올렸든 삭제할 수 있다. 승인 대기·비로그인은 거부.
  */
 export async function DELETE(
   _request: Request,
   { params }: { params: Promise<{ id: string }> },
 ) {
-  const guard = await requireAdmin();
+  const guard = await requireApprovedTeacher();
   if ("response" in guard) return guard.response;
 
   const { id } = await params;

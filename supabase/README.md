@@ -22,6 +22,7 @@ Supabase 대시보드 → **SQL Editor** → **New query** 에
 | `migrations/0003_timeline_activities.sql` | 월별 추진활동 테이블 `timeline_activities` (읽기 공개, 쓰기 운영자 전용) |
 | `migrations/0004_nav_items.sql` | 탭 메뉴 테이블 `nav_items` (읽기 공개, 쓰기 운영자 전용). 현재 메뉴 14개를 기본값으로 함께 넣는다 |
 | `migrations/0005_bridge_news.sql` | 브릿지 뉴스 테이블 `bridge_news` + Storage 버킷 `news` (읽기 공개, 등록은 승인 교사, 삭제는 운영자). `nav_items` 에 '브릿지 뉴스' 탭도 함께 넣는다 |
+| `migrations/0006_teacher_delete_posts.sql` | 수업자료·사진·브릿지 뉴스 삭제를 운영자 전용에서 **승인된 교사 전체**로 넓힌다 (누가 올렸든 삭제 가능) |
 
 `0003` 을 실행하기 전에는 `/timeline` 이 `src/content/timeline.ts` 의 기본 계획만
 보여주고, 운영자 화면(`/admin/timeline`)에서 등록을 시도하면 오류가 난다.
@@ -33,6 +34,9 @@ Supabase 대시보드 → **SQL Editor** → **New query** 에
 `0005` 를 실행하기 전에는 `/news` 가 "소식지를 불러오지 못했습니다" 안내만 보여주고
 업로드가 실패한다. `nav_items` 를 이미 쓰고 있다면 `0005` 실행 후 왼쪽 메뉴에
 '브릿지 뉴스' 탭이 생긴다 (순서·이름은 `/admin/nav` 에서 바꿀 수 있다).
+
+`0006` 을 실행하기 전에는 일반 교사 화면에 삭제 버튼이 보여도 DB 정책(RLS)이
+막아 실제로는 지워지지 않는다. 코드 배포와 함께 꼭 실행한다.
 
 > 탭을 지워도 그 페이지 자체가 사라지는 것은 아니다. 메뉴에서만 빠지고
 > 주소로는 계속 들어갈 수 있다.

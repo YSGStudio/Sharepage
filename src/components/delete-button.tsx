@@ -4,7 +4,7 @@ import { useRouter } from "next/navigation";
 import { useState } from "react";
 
 /**
- * 운영자 전용 삭제 버튼 (R16, R17).
+ * 삭제 버튼 (R16, R17). 권한 판정은 API 가 한다.
  * 브라우저 confirm() 대신 인라인 2단계 확인을 쓴다.
  */
 export function DeleteButton({

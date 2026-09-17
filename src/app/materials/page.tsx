@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { DeleteButton } from "@/components/delete-button";
 import { Alert, Badge, Card, Container, PageHeader } from "@/components/ui";
-import { getCurrentUser, isAdmin, isApprovedTeacher } from "@/lib/auth";
+import { getCurrentUser, isApprovedTeacher } from "@/lib/auth";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import type { TeachingMaterial } from "@/lib/supabase/types";
 
@@ -15,7 +15,6 @@ export const dynamic = "force-dynamic";
 
 export default async function MaterialsPage() {
   const user = await getCurrentUser().catch(() => null);
-  const admin = isAdmin(user);
   const canUpload = isApprovedTeacher(user);
 
   let materials: TeachingMaterial[] = [];
@@ -114,7 +113,7 @@ export default async function MaterialsPage() {
                     >
                       내려받기
                     </a>
-                    {admin && (
+                    {canUpload && (
                       <DeleteButton endpoint={`/api/materials/${m.id}`} />
                     )}
                   </div>

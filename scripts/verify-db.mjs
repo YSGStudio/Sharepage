@@ -264,17 +264,17 @@ for (const [label, slug, session] of [
 }
 
 // ---------------------------------------------------------------- AC7
-section("AC7", "삭제는 운영자만 (R16)");
+section("AC7", "삭제는 승인된 교사 누구나 (R16)");
 
 const targetMaterial = createdMaterialIds[0];
 {
-  const { error, count } = await teacherSession.client
+  const { error, count } = await pendingSession.client
     .from("teaching_materials")
     .delete({ count: "exact" })
     .eq("id", targetMaterial);
   // RLS 는 조건에 맞지 않는 행을 "안 보이게" 하므로 0건 삭제로 나타난다
   check(
-    "일반 교사의 수업자료 삭제가 거부됨(0건 삭제)",
+    "승인 대기 교사의 수업자료 삭제가 거부됨(0건 삭제)",
     count === 0 || Boolean(error),
     `count=${count}, error=${error?.message ?? "none"}`,
   );
@@ -284,14 +284,14 @@ const targetMaterial = createdMaterialIds[0];
     .from("teaching_materials")
     .select("id")
     .eq("id", targetMaterial);
-  check("일반 교사 삭제 시도 후에도 자료가 남아 있음", (data?.length ?? 0) === 1);
+  check("승인 대기 교사 삭제 시도 후에도 자료가 남아 있음", (data?.length ?? 0) === 1);
 }
 {
-  const { count } = await adminSession.client
+  const { count } = await teacherSession.client
     .from("teaching_materials")
     .delete({ count: "exact" })
     .eq("id", targetMaterial);
-  check("운영자는 정상 삭제", count === 1, `count=${count}`);
+  check("승인된 일반 교사는 정상 삭제", count === 1, `count=${count}`);
 }
 
 // ---------------------------------------------------------------- AC5 / AC8
@@ -414,11 +414,11 @@ for (const [label, session] of [
 }
 
 {
-  const { count } = await teacherSession.client
+  const { count } = await pendingSession.client
     .from("photos")
     .delete({ count: "exact" })
     .eq("id", photoIds[0]);
-  check("일반 교사의 사진 삭제가 거부됨(AC7)", count === 0, `count=${count}`);
+  check("승인 대기 교사의 사진 삭제가 거부됨(AC7)", count === 0, `count=${count}`);
 }
 
 // ---------------------------------------------------------------- AC4

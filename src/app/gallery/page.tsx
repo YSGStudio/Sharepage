@@ -8,7 +8,7 @@ import {
   UNSORTED_KEY,
   isGallerySectionKey,
 } from "@/content/gallery-sections";
-import { getCurrentUser, isAdmin, isApprovedTeacher } from "@/lib/auth";
+import { getCurrentUser, isApprovedTeacher } from "@/lib/auth";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import type { Photo } from "@/lib/supabase/types";
 
@@ -39,10 +39,10 @@ const KIND_THEME = {
 
 function PhotoGrid({
   photos,
-  admin,
+  canDelete,
 }: {
   photos: PhotoWithUrl[];
-  admin: boolean;
+  canDelete: boolean;
 }) {
   return (
     <ul className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
@@ -67,7 +67,7 @@ function PhotoGrid({
               <p className="mt-auto pt-3 text-xs text-ink-500">
                 {new Date(p.created_at).toLocaleDateString("ko-KR")}
               </p>
-              {admin && (
+              {canDelete && (
                 <div className="mt-3 border-t border-brand-100 pt-3">
                   <DeleteButton endpoint={`/api/photos/${p.id}`} />
                 </div>
@@ -82,7 +82,6 @@ function PhotoGrid({
 
 export default async function GalleryPage() {
   const user = await getCurrentUser().catch(() => null);
-  const admin = isAdmin(user);
   const canUpload = isApprovedTeacher(user);
 
   let photos: Photo[] = [];
@@ -248,7 +247,7 @@ export default async function GalleryPage() {
 
                         <div className="mt-4">
                           {items.length > 0 ? (
-                            <PhotoGrid photos={items} admin={admin} />
+                            <PhotoGrid photos={items} canDelete={canUpload} />
                           ) : (
                             <p className="rounded-xl border border-dashed border-surface-variant px-4 py-6 text-center text-sm text-ink-500">
                               아직 등록된 사진이 없습니다.
@@ -289,7 +288,7 @@ export default async function GalleryPage() {
               <div aria-hidden className="mt-4 h-1 w-16 rounded bg-surface-variant" />
 
               <div className="mt-7">
-                <PhotoGrid photos={unsorted} admin={admin} />
+                <PhotoGrid photos={unsorted} canDelete={canUpload} />
               </div>
             </section>
           )}

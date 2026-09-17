@@ -1,15 +1,15 @@
 import { NextResponse } from "next/server";
-import { requireAdmin } from "@/lib/guards";
+import { requireApprovedTeacher } from "@/lib/guards";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import type { BridgeNews } from "@/lib/supabase/types";
 import { NEWS_BUCKET } from "@/lib/upload";
 
-/** 브릿지 뉴스 삭제 (R16). 운영자만 가능 (AC7). */
+/** 브릿지 뉴스 삭제 (R16). 승인된 교사(운영자 포함)는 누구의 소식지든 삭제할 수 있다. */
 export async function DELETE(
   _request: Request,
   { params }: { params: Promise<{ id: string }> },
 ) {
-  const guard = await requireAdmin();
+  const guard = await requireApprovedTeacher();
   if ("response" in guard) return guard.response;
 
   const { id } = await params;
