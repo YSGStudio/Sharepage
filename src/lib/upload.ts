@@ -4,7 +4,7 @@ export const MAX_FILE_BYTES = 20 * 1024 * 1024; // 20MB
 /**
  * 브릿지 뉴스 PDF 상한. 소식지는 사진이 많아 수업자료보다 크다.
  * Supabase 무료 플랜의 파일당 상한(50MB)에 맞췄다.
- * 요청이 proxy 를 거치므로 next.config.ts 의 proxyClientMaxBodySize 도 이보다 커야 한다.
+ * 파일은 브라우저가 서명 주소로 Storage 에 직접 올린다(/api/news/upload-url).
  */
 export const MAX_NEWS_BYTES = 50 * 1024 * 1024; // 50MB
 export const MAX_IMAGE_BYTES = 10 * 1024 * 1024; // 10MB
@@ -60,4 +60,17 @@ export function checkFile(
     return "허용되지 않는 파일 형식입니다.";
   }
   return null;
+}
+
+/**
+ * buildStoragePath 가 만든 경로인지 확인한다.
+ * 브라우저가 Storage 에 직접 올린 뒤 경로를 알려 주는 흐름에서,
+ * 다른 폴더의 파일이나 임의 경로를 등록하지 못하게 막는다.
+ */
+export function isOwnStoragePath(prefix: string, path: string, ext: string): boolean {
+  const escaped = prefix.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+  const pattern = new RegExp(
+    `^${escaped}/\\d{4}-\\d{2}-\\d{2}/[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}\\.${ext}$`,
+  );
+  return pattern.test(path);
 }

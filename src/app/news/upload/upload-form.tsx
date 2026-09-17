@@ -4,9 +4,22 @@ import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 import { Field, FormMessage, TextArea, TextInput } from "@/components/form";
 import { renderPdfCover, THUMB_EXTENSION, THUMB_MIME } from "@/lib/pdf-thumbnail";
-import { ALLOWED_PDF_TYPES, checkFile, MAX_NEWS_BYTES } from "@/lib/upload";
+import { createSupabaseBrowserClient } from "@/lib/supabase/client";
+import { ALLOWED_PDF_TYPES, checkFile, MAX_NEWS_BYTES, NEWS_BUCKET } from "@/lib/upload";
 
 const MAX_NEWS_MB = MAX_NEWS_BYTES / 1024 / 1024;
+
+/** JSON 을 보내고, 실패하면 서버가 준 문구로 예외를 던진다. */
+async function postJson<T = unknown>(url: string, body: unknown): Promise<T> {
+  const res = await fetch(url, {
+    method: "POST",
+    headers: { "content-type": "application/json" },
+    body: JSON.stringify(body),
+  });
+  const json = await res.json().catch(() => ({}));
+  if (!res.ok) throw new Error(json.error ?? "업로드에 실패했습니다.");
+  return json as T;
+}
 
 /** 표지 만들기 진행 상태 */
 type CoverState =
@@ -19,6 +32,8 @@ export function NewsUploadForm() {
   const router = useRouter();
   const [error, setError] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
+  /** 올리는 동안 보여 줄 단계 안내 */
+  const [progress, setProgress] = useState<string | null>(null);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [cover, setCover] = useState<CoverState>({ step: "idle" });
   const [dragging, setDragging] = useState(false);
@@ -89,7 +104,7 @@ export function NewsUploadForm() {
     setError(null);
 
     const form = event.currentTarget;
-    const formData = new FormData(form);
+    const fields = new FormData(form);
 
     const fileError = checkFile(selectedFile, {
       maxBytes: MAX_NEWS_BYTES,
@@ -99,33 +114,78 @@ export function NewsUploadForm() {
       setError(fileError);
       return;
     }
-    formData.set("file", selectedFile!);
+    const pdf = selectedFile!;
 
     if (cover.step === "working") {
       setError("표지를 만드는 중입니다. 잠시 후 다시 눌러 주세요.");
       return;
     }
-    if (cover.step === "done") formData.set("thumb", cover.file);
+    const coverFile = cover.step === "done" ? cover.file : null;
 
     setBusy(true);
     try {
-      const res = await fetch("/api/news", { method: "POST", body: formData });
-      const json = await res.json().catch(() => ({}));
+      // 1) 업로드 주소 받기 — 서버는 권한·한도만 확인한다.
+      setProgress("업로드를 준비하는 중…");
+      const prepared = await postJson<{
+        pdf: { path: string; token: string };
+        thumb: { path: string; token: string } | null;
+      }>("/api/news/upload-url", {
+        pdf: { name: pdf.name, size: pdf.size, type: pdf.type },
+        thumb: coverFile ? { size: coverFile.size, type: coverFile.type } : null,
+      });
 
-      if (!res.ok) {
-        setError(json.error ?? "업로드에 실패했습니다.");
-        return;
+      // 2) 파일은 브라우저에서 Storage 로 바로 올린다(서버 요청 크기 제한 회피).
+      setProgress(`PDF 를 올리는 중… (${(pdf.size / 1024 / 1024).toFixed(1)}MB)`);
+      const storage = createSupabaseBrowserClient().storage.from(NEWS_BUCKET);
+      const uploaded = await storage.uploadToSignedUrl(prepared.pdf.path, prepared.pdf.token, pdf, {
+        contentType: pdf.type,
+      });
+      if (uploaded.error) {
+        console.error("[news] PDF 업로드 실패:", uploaded.error);
+        throw new Error("파일 업로드에 실패했습니다. 잠시 후 다시 시도해 주세요.");
       }
+
+      // 표지는 실패해도 등록을 막지 않는다.
+      let thumbPath: string | null = null;
+      if (coverFile && prepared.thumb) {
+        const thumb = await storage.uploadToSignedUrl(
+          prepared.thumb.path,
+          prepared.thumb.token,
+          coverFile,
+          { contentType: coverFile.type },
+        );
+        if (thumb.error) console.error("[news] 표지 업로드 실패:", thumb.error);
+        else thumbPath = prepared.thumb.path;
+      }
+
+      // 3) 등록 — 서버가 올라간 파일을 다시 확인한다.
+      setProgress("소식지를 등록하는 중…");
+      await postJson("/api/news", {
+        title: fields.get("title"),
+        issue_label: fields.get("issue_label"),
+        published_on: fields.get("published_on"),
+        description: fields.get("description"),
+        file_path: prepared.pdf.path,
+        file_name: pdf.name,
+        thumb_path: thumbPath,
+      });
 
       form.reset();
       setSelectedFile(null);
       resetCover();
       router.push("/news");
       router.refresh();
-    } catch {
-      setError("네트워크 오류입니다. 잠시 후 다시 시도해 주세요.");
+    } catch (e) {
+      setError(
+        e instanceof TypeError
+          ? "네트워크 오류입니다. 잠시 후 다시 시도해 주세요."
+          : e instanceof Error
+            ? e.message
+            : "업로드에 실패했습니다.",
+      );
     } finally {
       setBusy(false);
+      setProgress(null);
     }
   }
 
@@ -304,7 +364,7 @@ export function NewsUploadForm() {
         disabled={busy}
         className="w-full rounded-lg bg-brand-600 px-4 py-3 text-sm font-semibold text-white hover:bg-brand-700 disabled:opacity-60"
       >
-        {busy ? "올리는 중…" : "소식지 올리기"}
+        {busy ? (progress ?? "올리는 중…") : "소식지 올리기"}
       </button>
     </form>
   );

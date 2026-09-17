@@ -35,7 +35,8 @@ const nextConfig: NextConfig = {
   },
   experimental: {
     // proxy(src/proxy.ts)는 요청 본문을 이 크기까지만 받아 두고 나머지는 조용히 잘라낸다(기본 10MB).
-    // 브릿지 뉴스 PDF(최대 50MB)에 표지 이미지·폼 필드가 더해지므로 여유를 둔다.
+    // 수업자료(20MB) 업로드가 잘리지 않도록 올려 둔다. 브릿지 뉴스 PDF 는 Storage 로 직접 올라가
+    // 이 제한과 호스팅의 요청 크기 제한(413)을 거치지 않는다.
     proxyClientMaxBodySize: "55mb",
   },
   // 지도안 생성 프롬프트는 src/content/lesson-plan 의 마크다운을 런타임에 읽는다.
