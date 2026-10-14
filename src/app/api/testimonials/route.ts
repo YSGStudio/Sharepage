@@ -1,8 +1,7 @@
 import { NextResponse } from "next/server";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
-import type { AuthorType } from "@/lib/supabase/types";
+import { AUTHOR_TYPES, type AuthorType } from "@/lib/supabase/types";
 
-const AUTHOR_TYPES: AuthorType[] = ["student", "parent"];
 const MAX_CONTENT_LENGTH = 2000;
 const MAX_NAME_LENGTH = 40;
 
@@ -49,7 +48,7 @@ export async function POST(request: Request) {
   }
   if (!AUTHOR_TYPES.includes(authorType as AuthorType)) {
     return NextResponse.json(
-      { error: "작성자 구분(학생/학부모)을 선택해 주세요." },
+      { error: "작성자 구분(학생/학부모/교사)을 선택해 주세요." },
       { status: 400 },
     );
   }

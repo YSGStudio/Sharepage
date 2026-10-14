@@ -66,8 +66,16 @@ describe("POST /api/testimonials", () => {
     expect(insert).not.toHaveBeenCalled();
   });
 
-  it("작성자 구분이 잘못되면 400", async () => {
+  it("교사도 소감을 남길 수 있다", async () => {
     const res = await POST(submit({ ...VALID, authorType: "teacher" }));
+    expect(res.status).toBe(201);
+    expect(insert).toHaveBeenCalledWith(
+      expect.objectContaining({ author_type: "teacher" }),
+    );
+  });
+
+  it("작성자 구분이 잘못되면 400", async () => {
+    const res = await POST(submit({ ...VALID, authorType: "principal" }));
     expect(res.status).toBe(400);
     expect(insert).not.toHaveBeenCalled();
   });

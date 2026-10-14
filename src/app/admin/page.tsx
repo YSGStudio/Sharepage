@@ -6,7 +6,12 @@ import { StatusActions } from "@/components/status-action";
 import { Alert, Badge, Card, Container, PageHeader, Section } from "@/components/ui";
 import { getCurrentUser, isAdmin } from "@/lib/auth";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
-import type { Teacher, Testimonial } from "@/lib/supabase/types";
+import {
+  AUTHOR_BADGE_TONES,
+  AUTHOR_TYPE_LABELS,
+  type Teacher,
+  type Testimonial,
+} from "@/lib/supabase/types";
 
 export const metadata: Metadata = { title: "운영자 화면" };
 
@@ -141,8 +146,8 @@ export default async function AdminPage() {
                 <li key={t.id}>
                   <Card>
                     <div className="flex flex-wrap items-center gap-2">
-                      <Badge tone={t.author_type === "student" ? "brand" : "accent"}>
-                        {t.author_type === "student" ? "학생" : "학부모"}
+                      <Badge tone={AUTHOR_BADGE_TONES[t.author_type]}>
+                        {AUTHOR_TYPE_LABELS[t.author_type]}
                       </Badge>
                       <span className="text-sm font-medium text-ink-900">
                         {t.author_name || "익명"}

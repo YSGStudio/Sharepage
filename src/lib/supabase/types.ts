@@ -6,7 +6,20 @@
 export type TeacherRole = "admin" | "teacher";
 export type TeacherStatus = "pending" | "approved" | "rejected";
 export type TestimonialStatus = "pending" | "approved" | "rejected";
-export type AuthorType = "student" | "parent";
+export type AuthorType = "student" | "parent" | "teacher";
+
+/** 소감 작성자 구분 — 화면 표시 순서와 이름. */
+export const AUTHOR_TYPES: AuthorType[] = ["student", "parent", "teacher"];
+export const AUTHOR_TYPE_LABELS: Record<AuthorType, string> = {
+  student: "학생",
+  parent: "학부모",
+  teacher: "교사",
+};
+export const AUTHOR_BADGE_TONES: Record<AuthorType, "brand" | "accent" | "muted"> = {
+  student: "brand",
+  parent: "accent",
+  teacher: "muted",
+};
 
 export interface Teacher {
   id: string;

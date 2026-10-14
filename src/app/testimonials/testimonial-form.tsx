@@ -21,7 +21,7 @@ export function TestimonialForm() {
     };
 
     if (!payload.authorType) {
-      setError("학생인지 학부모인지 선택해 주세요.");
+      setError("학생·학부모·교사 중 하나를 선택해 주세요.");
       return;
     }
     if (!payload.content.trim()) {
@@ -78,6 +78,7 @@ export function TestimonialForm() {
           </option>
           <option value="student">학생</option>
           <option value="parent">학부모</option>
+          <option value="teacher">교사</option>
         </Select>
       </Field>
 
@@ -90,7 +91,7 @@ export function TestimonialForm() {
           id="authorName"
           name="authorName"
           maxLength={40}
-          placeholder="예: 4학년 김○○ / 익명"
+          placeholder="예: 4학년 김○○ / 3학년 담임 / 익명"
         />
       </Field>
 
