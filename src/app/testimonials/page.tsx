@@ -54,7 +54,7 @@ export default async function TestimonialsPage() {
             <TestimonialTabs testimonials={approved} />
           </Section>
 
-          <Section title="소감 남기기" className="lg:sticky lg:top-24">
+          <Section title="소감 남기기" className="order-first lg:order-none lg:sticky lg:top-24">
             <Card>
               <TestimonialForm />
             </Card>
