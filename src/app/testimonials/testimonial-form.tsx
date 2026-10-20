@@ -3,7 +3,11 @@
 import { useState } from "react";
 import { Field, FormMessage, Select, TextArea, TextInput } from "@/components/form";
 
+const GRADES = [1, 2, 3, 4, 5, 6];
+const CLASSES = [1, 2, 3, 4, 5, 6, 7, 8, 9];
+
 export function TestimonialForm() {
+  const [authorType, setAuthorType] = useState("");
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [done, setDone] = useState<string | null>(null);
@@ -17,11 +21,17 @@ export function TestimonialForm() {
     const payload = {
       authorType: String(formData.get("authorType") ?? ""),
       authorName: String(formData.get("authorName") ?? ""),
+      grade: String(formData.get("grade") ?? ""),
+      classNo: String(formData.get("classNo") ?? ""),
       content: String(formData.get("content") ?? ""),
     };
 
     if (!payload.authorType) {
       setError("학생·학부모·교사 중 하나를 선택해 주세요.");
+      return;
+    }
+    if (payload.authorType === "parent" && (!payload.grade || !payload.classNo)) {
+      setError("자녀의 학년과 반을 선택해 주세요.");
       return;
     }
     if (!payload.content.trim()) {
@@ -44,6 +54,7 @@ export function TestimonialForm() {
       }
 
       form.reset();
+      setAuthorType("");
       setDone(json.message ?? "소감을 보내 주셔서 감사합니다.");
     } catch {
       setError("네트워크 오류입니다. 잠시 후 다시 시도해 주세요.");
@@ -72,7 +83,13 @@ export function TestimonialForm() {
       {error && <FormMessage tone="error">{error}</FormMessage>}
 
       <Field label="어느 분이신가요?" htmlFor="authorType" required>
-        <Select id="authorType" name="authorType" required defaultValue="">
+        <Select
+          id="authorType"
+          name="authorType"
+          required
+          value={authorType}
+          onChange={(e) => setAuthorType(e.target.value)}
+        >
           <option value="" disabled>
             선택하세요
           </option>
@@ -82,18 +99,47 @@ export function TestimonialForm() {
         </Select>
       </Field>
 
-      <Field
-        label="이름"
-        htmlFor="authorName"
-        hint="비워 두시면 '익명'으로 표시됩니다."
-      >
-        <TextInput
-          id="authorName"
-          name="authorName"
-          maxLength={40}
-          placeholder="예: 4학년 김○○ / 3학년 담임 / 익명"
-        />
-      </Field>
+      {authorType === "parent" ? (
+        <div className="grid grid-cols-2 gap-3">
+          <Field label="자녀 학년" htmlFor="grade" required>
+            <Select id="grade" name="grade" required defaultValue="">
+              <option value="" disabled>
+                학년
+              </option>
+              {GRADES.map((g) => (
+                <option key={g} value={g}>
+                  {g}학년
+                </option>
+              ))}
+            </Select>
+          </Field>
+          <Field label="반" htmlFor="classNo" required>
+            <Select id="classNo" name="classNo" required defaultValue="">
+              <option value="" disabled>
+                반
+              </option>
+              {CLASSES.map((c) => (
+                <option key={c} value={c}>
+                  {c}반
+                </option>
+              ))}
+            </Select>
+          </Field>
+        </div>
+      ) : (
+        <Field
+          label="이름"
+          htmlFor="authorName"
+          hint="비워 두시면 '익명'으로 표시됩니다."
+        >
+          <TextInput
+            id="authorName"
+            name="authorName"
+            maxLength={40}
+            placeholder="예: 4학년 김○○ / 3학년 담임 / 익명"
+          />
+        </Field>
+      )}
 
       <Field label="소감" htmlFor="content" hint="2000자 이내" required>
         <TextArea

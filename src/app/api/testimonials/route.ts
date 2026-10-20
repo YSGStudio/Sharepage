@@ -4,6 +4,14 @@ import { AUTHOR_TYPES, type AuthorType } from "@/lib/supabase/types";
 
 const MAX_CONTENT_LENGTH = 2000;
 const MAX_NAME_LENGTH = 40;
+const MAX_GRADE = 6;
+const MAX_CLASS = 9;
+
+/** "1"~max 사이의 정수 문자열이면 숫자로, 아니면 null. */
+function parseRange(value: unknown, max: number): number | null {
+  const n = Number(value);
+  return Number.isInteger(n) && n >= 1 && n <= max ? n : null;
+}
 
 /**
  * 소감 제출 (R12, R13).
@@ -24,7 +32,7 @@ export async function POST(request: Request) {
   const body = (raw ?? {}) as Record<string, unknown>;
   const content =
     typeof body.content === "string" ? body.content.trim() : "";
-  const authorName =
+  let authorName =
     typeof body.authorName === "string" ? body.authorName.trim() : "";
   const authorType = String(body.authorType ?? "");
 
@@ -51,6 +59,19 @@ export async function POST(request: Request) {
       { error: "작성자 구분(학생/학부모/교사)을 선택해 주세요." },
       { status: 400 },
     );
+  }
+
+  // 학부모는 이름 대신 자녀의 학년·반만 받는다.
+  if (authorType === "parent") {
+    const grade = parseRange(body.grade, MAX_GRADE);
+    const classNo = parseRange(body.classNo, MAX_CLASS);
+    if (grade === null || classNo === null) {
+      return NextResponse.json(
+        { error: "자녀의 학년(1~6)과 반(1~9)을 선택해 주세요." },
+        { status: 400 },
+      );
+    }
+    authorName = `${grade}학년 ${classNo}반 학부모`;
   }
 
   const supabase = await createSupabaseServerClient();

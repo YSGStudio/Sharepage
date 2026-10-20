@@ -25,7 +25,8 @@ function submit(body: unknown) {
 
 const VALID = {
   authorType: "parent",
-  authorName: "4학년 학부모",
+  grade: "4",
+  classNo: "2",
   content: "아이가 수업에서 스스로 발표하는 모습을 처음 봤습니다.",
 };
 
@@ -53,8 +54,26 @@ describe("POST /api/testimonials", () => {
     );
   });
 
+  it("학부모는 학년·반으로 이름을 만든다", async () => {
+    await POST(submit({ ...VALID, authorName: "김○○" }));
+    expect(insert).toHaveBeenCalledWith(
+      expect.objectContaining({ author_name: "4학년 2반 학부모" }),
+    );
+  });
+
+  it.each([
+    [{ grade: "" }],
+    [{ grade: "7" }],
+    [{ classNo: "0" }],
+    [{ classNo: "10" }],
+  ])("학부모의 학년·반이 범위를 벗어나면 400 (%o)", async (patch) => {
+    const res = await POST(submit({ ...VALID, ...patch }));
+    expect(res.status).toBe(400);
+    expect(insert).not.toHaveBeenCalled();
+  });
+
   it("이름을 비우면 익명(null)으로 저장한다", async () => {
-    await POST(submit({ ...VALID, authorName: "  " }));
+    await POST(submit({ ...VALID, authorType: "student", authorName: "  " }));
     expect(insert).toHaveBeenCalledWith(
       expect.objectContaining({ author_name: null }),
     );
