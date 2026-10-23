@@ -28,6 +28,29 @@ export const RESEARCH_PURPOSES: string[] = [
 export const RESEARCH_GOAL =
   "AI·디지털 기반 수업 혁신, 학생의 디지털 역량 및 리터러시 신장, 교사의 전문성 강화와 협력적 연구 생태계 구축, 기초학력 보장과 맞춤형 학습 지원, 생태전환교육 모델 및 실천 환경 조성을 통해 학생 맞춤형 교육을 통한 미래교육을 실현한다.";
 
+export interface TaskFigure {
+  src: string;
+  width: number;
+  height: number;
+  alt: string;
+  caption: string;
+}
+
+export interface TaskExecutionItem {
+  title: string;
+  /** 단계 순서가 있는 항목이면 true (흐름도로 표시) */
+  flow?: boolean;
+  /** 해당 항목에서 실제로 운영한 활동 */
+  details?: string[];
+  /** 기본 사진 (결과보고서에서 가져옴). 운영자가 바꾸면 task_item_photos 의 사진이 대신 보인다. */
+  photo?: string;
+}
+
+export interface TaskExecution {
+  title: string;
+  items: TaskExecutionItem[];
+}
+
 export interface ResearchTask {
   id: string;
   kind: "공통과제" | "선택과제";
@@ -38,8 +61,10 @@ export interface ResearchTask {
   description: string;
   /** 주요 추진 내용 */
   strategies: string[];
-  /** 기대 효과 */
-  effects: string[];
+  /** 실행 내용 (결과보고서 Ⅳ. 연구 과제의 실행 목차) */
+  executions?: TaskExecution[];
+  /** 과제 설명 이미지 (표시 순서대로) */
+  figures?: TaskFigure[];
 }
 
 export const RESEARCH_TASKS: ResearchTask[] = [
@@ -55,10 +80,58 @@ export const RESEARCH_TASKS: ResearchTask[] = [
       "AI·디지털 기반 학습 과정 중심 평가 혁신: 학생 참여형 과정 중심 평가, AI 기반 학습 분석, 맞춤형 성장 지원의 3단계 평가 순환 구축",
       "개발된 수업 모델의 학년·교과 확장 적용 및 고도화 운영: 수업 모델 설계 협의 → 수업 모델 컨설팅 → 모델 적용 컨설팅 → 교직원 연수(확산)",
     ],
-    effects: [
-      "교사의 수업 선택지 확대",
-      "학생 참여 중심 수업 활성화",
-      "AI 기반 맞춤형 상호작용 강화",
+    executions: [
+      {
+        title: "AI·디지털 기반 교육혁신을 위한 교수·학습·평가 일체형 수업 모델 개발",
+        items: [
+          {
+            title: "BRIDGE 수업 모델 단계별 흐름",
+            photo: "/images/tasks/common-1-1-1.jpg",
+          },
+          {
+            title: "교·수·평 일체화를 위한 수업 개요",
+            photo: "/images/tasks/common-1-1-2.jpg",
+          },
+          {
+            title: "BRIDGE 단계별 수업 전략 및 AI·디지털 도구 활용의 타당성",
+            photo: "/images/tasks/common-1-1-3.jpg",
+          },
+          {
+            title: "학생 주도성 향상을 위한 4가지 전략",
+            photo: "/images/tasks/common-1-1-4.jpg",
+          },
+        ],
+      },
+      {
+        title: "AI·디지털 기반 학습 과정 중심 평가 혁신",
+        items: [
+          {
+            title: "AI·디지털 기반 과정 중심 평가의 순서",
+            flow: true,
+            details: ["학생 참여형 과정 중심 평가", "AI 기반 학습 분석", "맞춤형 성장 지원"],
+          },
+          {
+            title: "AI·디지털 기반 과정 중심 평가의 사례",
+            photo: "/images/tasks/common-1-2-2.jpg",
+            details: [
+              "학습의 과정 전체를 볼 수 있는 포트폴리오 수집(와우아이디어스 활용)",
+              "AI·디지털 기반 실시간 피드백",
+            ],
+          },
+        ],
+      },
+      {
+        title: "개발된 수업 모델의 학년·교과 확장 적용 및 고도화 운영",
+        items: [
+          {
+            title: "BRIDGE 모델 고도화를 위한 과정",
+            photo: "/images/tasks/common-1-3-1.jpg",
+            flow: true,
+            details: ["수업 모델 설계 협의", "수업 모델 컨설팅", "모델 적용 컨설팅", "교직원 연수(확산)"],
+          },
+          { title: "학년·교과별 수업 모델의 적용" },
+        ],
+      },
     ],
   },
   {
@@ -73,10 +146,64 @@ export const RESEARCH_TASKS: ResearchTask[] = [
       "AI·디지털 윤리 교육을 통한 올바른 디지털 정체성 함양: 학년별 맞춤 디지털 시민성 교육과 모두가 함께하는 디지털 캠페인 운영",
       "디지털 포트폴리오 누적 및 성장 확산 활동 운영: 학생 성장 기록의 체계화, 학교 안 성장 공유 플랫폼과 학급·학년별 성장 전시회 운영",
     ],
-    effects: [
-      "학생의 자기주도적 학습 역량 강화",
-      "AI 활용 능력 향상",
-      "미래 핵심역량 함양",
+    executions: [
+      {
+        title: "‘디지털 또래 지원단’을 통한 디지털 캠페인",
+        items: [
+          {
+            title: "또래 지원단 활동",
+            photo: "/images/tasks/common-2-1-1.jpg",
+          },
+          {
+            title: "학년별 동아리 활동 연계한 디지털 팝업 클래스 운영",
+            photo: "/images/tasks/common-2-1-2.jpg",
+            details: [
+              "AI·디지털 리터러시 향상을 위한 팝업 클래스 운영",
+              "AI 윤리가이드 정하기(학급 → 자치회 가이드 정리)",
+            ],
+          },
+        ],
+      },
+      {
+        title: "AI·디지털 윤리 교육을 통한 올바른 디지털 정체성 함양",
+        items: [
+          {
+            title: "3학년: 우리 생활 속 AI와 디지털 정보 만나기",
+            photo: "/images/tasks/common-2-2-1.jpg",
+          },
+          {
+            title: "4학년: 가짜 정보를 찾아라",
+            photo: "/images/tasks/common-2-2-2.jpg",
+          },
+          {
+            title: "5학년: AI 리터러시 박람회",
+            photo: "/images/tasks/common-2-2-3.jpg",
+          },
+          {
+            title: "6학년: AI 시대의 시민으로서 나의 역할 찾기",
+            photo: "/images/tasks/common-2-2-4.jpg",
+          },
+        ],
+      },
+      {
+        title: "디지털 포트폴리오 누적 및 성장 확산 활동 운영",
+        items: [
+          {
+            title: "디지털 포트폴리오를 통한 학생 성장 기록 및 가정 소통 강화",
+            photo: "/images/tasks/common-2-3-1.jpg",
+            details: ["디지털 도구를 활용한 성장 과정 기록", "성장 플랫폼 운영을 통한 기록의 체계화"],
+          },
+          {
+            title: "학교 문화를 변화시키는 성장 확산 활동 운영",
+            photo: "/images/tasks/common-2-3-2.jpg",
+            details: [
+              "학교 안 안전한 SNS 운영(성장 공유 플랫폼 Toast + Star)",
+              "학급 및 학년별 성장 전시회",
+              "가족이 함께 하는 바이브코딩 체험연수",
+            ],
+          },
+        ],
+      },
     ],
   },
   {
@@ -91,10 +218,52 @@ export const RESEARCH_TASKS: ResearchTask[] = [
       "수업 나눔을 통한 연구 내용 확산 및 공유: BRIDGE 뉴스 발간, 강남서초·해외 방문단 대상 수업 나눔, BRIDGE 아카이브를 통한 교육과정 재구성 사례 공유",
       "연구 문화 조성을 위한 업무 경감 체제 구축: 교육행정정보의 디지털 전환과 디지털 관리 플랫폼 운영",
     ],
-    effects: [
-      "교사의 디지털 수업 역량 강화",
-      "연구 중심 학교문화 정착",
-      "지속 가능한 교육혁신 실현",
+    executions: [
+      {
+        title: "맞춤형, 브릿지형 연수를 통한 교원의 디지털 역량 강화",
+        items: [
+          {
+            title: "공동성찰, 공동연구, 공동나눔을 위한 맞춤형 교원학습공동체 운영",
+            photo: "/images/tasks/common-3-1-1.jpg",
+            details: ["교원학습공동체 운영", "전교원 VR 전시회 연수", "BRIDGE 챌린지 및 모델 연수"],
+          },
+          {
+            title: "우리학교 연수원을 통한 맞춤형 연수 운영",
+            photo: "/images/tasks/common-3-1-2.jpg",
+            details: ["우리학교 연수원 운영", "교내 바이브코딩 연수"],
+          },
+        ],
+      },
+      {
+        title: "수업나눔을 통한 연구 내용 확산 및 공유",
+        items: [
+          {
+            title: "수업나눔 사례 공유를 위한 소식지 운영",
+            photo: "/images/tasks/common-3-2-1.jpg",
+            details: ["BRIDGE 뉴스 발간"],
+          },
+          {
+            title: "BRIDGE 모델 확산을 위한 수업나눔",
+            photo: "/images/tasks/common-3-2-2.jpg",
+            details: ["강남서초 수업 나눔", "싱가포르 대사관 방문 수업 나눔", "2학기 강남서초 수업 나눔"],
+          },
+          {
+            title: "교육과정 재구성 사례 공유",
+            photo: "/images/tasks/common-3-2-3.jpg",
+            details: ["연구교원 간 BRIDGE 아카이브 운영", "공유 및 확산을 위한 홈페이지 운영"],
+          },
+        ],
+      },
+      {
+        title: "연구문화 조성을 위한 업무경감 체제 구축",
+        items: [
+          {
+            title: "디지털 관리 플랫폼 운영을 통한 시스템 지원",
+            photo: "/images/tasks/common-3-3-1.jpg",
+            details: ["고장신고 편의성", "공유기기 관리·대여", "디지털 튜터 지원", "관리자의 기기 관리"],
+          },
+        ],
+      },
     ],
   },
   {
@@ -109,10 +278,41 @@ export const RESEARCH_TASKS: ResearchTask[] = [
       "디지털 도구를 활용한 기초학력 보충 수업 운영",
       "기초학력 데이터 기반 교사–학부모 소통 강화: 가정–학교 공유로 교육 소통 강화",
     ],
-    effects: [
-      "학생 수준별 맞춤형 학습 지원",
-      "기초학력 향상",
-      "학습 성장의 체계적 관리",
+    executions: [
+      {
+        title: "AI 코스웨어를 활용한 학생 수준 진단 및 맞춤형 학습 지원",
+        items: [
+          {
+            title: "AI 코스웨어를 활용한 수준 진단 및 학습지원",
+            details: ["수학 학생 대시보드", "리딩앤 대시보드", "수학 차시별 학습지원", "학생 수준 진단"],
+            photo: "/images/tasks/option-1-1-1.jpg",
+          },
+          {
+            title: "국가기초학력포털을 활용한 향상도 평가 및 학습 기록 누적",
+            details: ["학생 향상도 평가"],
+            photo: "/images/tasks/option-1-1-2.jpg",
+          },
+        ],
+      },
+      {
+        title: "디지털 도구를 활용한 기초학력 보충 수업 운영",
+        items: [
+          {
+            title: "디지털 도구를 활용한 키다리쌤 운영",
+            photo: "/images/tasks/option-1-2-1.jpg",
+          },
+        ],
+      },
+      {
+        title: "기초학력 데이터 기반 교사-학부모 소통 강화",
+        items: [
+          {
+            title: "데이터 기반 소통 강화",
+            details: ["문해력 보고서"],
+            photo: "/images/tasks/option-1-3-1.jpg",
+          },
+        ],
+      },
     ],
   },
   {
@@ -123,14 +323,66 @@ export const RESEARCH_TASKS: ResearchTask[] = [
     description:
       "2학기 학년자율시간을 활용해 BRIDGE 수업 모델을 생태전환교육에 적용한다. 학생이 주변의 환경 문제를 스스로 정의하고 AI·디지털 도구로 탐구해 실천으로 잇도록 한다.",
     strategies: [
-      "AI·디지털 도구 기반 생태전환 탐구 수업 설계: ‘환경과 함께하는 우리’ 29차시 학생 주도 설계 프로그램 운영",
+      "AI·디지털 도구 기반 생태전환 탐구 수업 설계: 통합·국어·음악·미술·도덕·사회 등 교과와 연계한 학년별 생태전환 탐구 수업 운영",
       "디지털 도구를 활용한 생태전환 실천 활동: 그린 캠페이너 프로젝트 등 학생 주도 실천 활동 운영",
       "생태전환교육 수업 사례 아카이빙 및 확산: 수업 사례 공유 및 저장소 운영",
     ],
-    effects: [
-      "지속가능한 미래 시민 역량 강화",
-      "생태전환 실천 문화 확산",
-      "우수 수업 모델 공유 및 교육 확산",
+    executions: [
+      {
+        title: "AI·디지털 도구 기반 생태전환 탐구 수업 설계",
+        items: [
+          {
+            title: "2학년 통합: 자연은 디자이너",
+            details: ["자연 속 무늬로 옷 디자인하기", "띵커벨·패들렛·클래스툴"],
+          },
+          {
+            title: "4학년 국어: 의견 비교하기",
+            details: ["지구위기로 인한 빙하호 붕괴의 원인과 피해배상의 책임 알아보기", "토론 친구"],
+          },
+          {
+            title: "4학년 음악: 노래 가사 바꾸어 부르기",
+            details: ["환경을 주제로 노래 가사 바꿔 부르기", "SUNO"],
+          },
+          {
+            title: "4학년 미술: 환경전시회",
+            details: ["기후위기·환경파괴를 주제로 그림 전시회 열기", "캔바"],
+          },
+          {
+            title: "4학년 도덕: 쓰레기 줄이는 방법 알아보기",
+            details: ["분리배출을 익힐 수 있는 웹사이트 만들기", "Lovable"],
+          },
+          {
+            title: "4학년 창체: 기후 위기 전시관 운영",
+            details: ["기후위기 극복에 동참을 제안하는 기후전시관 운영하기", "캔바"],
+          },
+          {
+            title: "4학년 사회: 지역의 환경 문제 해결하기",
+            details: ["지역의 환경문제를 찾고 해결방법을 찾아 실천하기", "캔바"],
+          },
+          {
+            title: "6학년 미술: 사물의 소비와 생태 환경 관계 표현하기",
+            details: ["생태 미술 작품 만들기", "아트봉봉·캔바"],
+          },
+        ],
+      },
+      {
+        title: "디지털 도구를 활용한 생태전환 실천 활동",
+        items: [
+          {
+            title: "생태전환 실천 활동",
+            photo: "/images/tasks/option-2-2-1.jpg",
+          },
+        ],
+      },
+      {
+        title: "생태전환교육 수업 사례 아카이빙 및 확산",
+        items: [
+          {
+            title: "수업 사례 공유 및 저장소 운영",
+            photo: "/images/tasks/option-2-3-1.jpg",
+          },
+        ],
+      },
     ],
   },
 ];
@@ -174,6 +426,20 @@ export const RESEARCH_PHASES: ResearchPhase[] = [
 ];
 
 /** 내비게이션·페이지에서 쓰는 과제 번호 이름 (과제1~3, 선택1~2) */
+/** 실행 항목 사진을 운영자가 바꿀 때 쓰는 키. 예: common-1-2-1 (과제 id-가나다 순번-세부 항목 순번) */
+export function taskItemKey(taskId: string, executionIndex: number, itemIndex: number): string {
+  return `${taskId}-${executionIndex + 1}-${itemIndex + 1}`;
+}
+
+/** taskItemKey 로 만들 수 있는 키인지 확인한다. */
+export function isTaskItemKey(key: string): boolean {
+  return RESEARCH_TASKS.some((task) =>
+    task.executions?.some((execution, i) =>
+      execution.items.some((_, j) => taskItemKey(task.id, i, j) === key),
+    ),
+  );
+}
+
 export function taskLabel(task: ResearchTask): string {
   const sameKind = RESEARCH_TASKS.filter((t) => t.kind === task.kind);
   const order = sameKind.indexOf(task) + 1;

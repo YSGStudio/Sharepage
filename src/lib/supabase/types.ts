@@ -67,6 +67,14 @@ export interface Photo {
   created_at: string;
 }
 
+/** 0008_task_item_photos.sql */
+export interface TaskItemPhoto {
+  item_key: string;
+  storage_path: string;
+  updated_by: string | null;
+  updated_at: string;
+}
+
 export interface Testimonial {
   id: string;
   author_type: AuthorType;
