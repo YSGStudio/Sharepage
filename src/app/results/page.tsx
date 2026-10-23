@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { MetricCard } from "@/components/result-metric";
 import {
   Alert,
   Badge,
@@ -9,16 +10,20 @@ import {
   TableScroll,
 } from "@/components/ui";
 import {
+  CONCLUSIONS,
   DISSEMINATION_CASES,
+  KEY_METRICS,
   RESULTS_NOTICE,
+  SUGGESTIONS,
   TASK_RESULTS,
-  VERIFICATION_PLAN,
+  VERIFICATION_LIMIT,
+  VERIFICATION_METHODS,
 } from "@/content/results";
 
 export const metadata: Metadata = {
   title: "연구 결과",
   description:
-    "공통과제·선택과제별 성과와 시사점, 검증 계획, 성과 확산 사례를 정리했습니다.",
+    "사전·사후 검증으로 확인한 공통과제·선택과제별 성과와 시사점, 결론 및 제언, 성과 확산 사례를 정리했습니다.",
 };
 
 export default function ResultsPage() {
@@ -27,15 +32,28 @@ export default function ResultsPage() {
       <PageHeader
         eyebrow="연구 소개"
         title="연구 결과 및 검증"
-        description="과제별로 무엇을 했고, 무엇이 확인되었으며, 무엇이 남았는지 정리했습니다."
+        description="사전·사후 검증으로 과제별로 무엇이 확인되었고, 무엇이 남았는지 정리했습니다."
       />
 
       <Container>
         <div className="mb-10">
-          <Alert tone="warning" title="중간 성과 안내">
+          <Alert tone="info" title="결과보고서 기준 안내">
             {RESULTS_NOTICE}
           </Alert>
         </div>
+
+        <Section
+          title="한눈에 보는 결과"
+          description="교사·학생·기초학력·생태전환교육 영역의 사전·사후 평균(5점 척도)입니다."
+        >
+          <ul className="grid gap-4 sm:grid-cols-2 lg:grid-cols-5">
+            {KEY_METRICS.map((metric) => (
+              <li key={metric.label}>
+                <MetricCard metric={metric} />
+              </li>
+            ))}
+          </ul>
+        </Section>
 
         <Section title="과제별 성과와 시사점">
           <div className="space-y-6">
@@ -49,6 +67,14 @@ export default function ResultsPage() {
                     {result.title}
                   </h2>
                 </div>
+
+                <ul className="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+                  {result.metrics.map((metric) => (
+                    <li key={metric.label}>
+                      <MetricCard metric={metric} />
+                    </li>
+                  ))}
+                </ul>
 
                 <div className="mt-4 grid gap-6 lg:grid-cols-2">
                   <div>
@@ -102,9 +128,41 @@ export default function ResultsPage() {
           </div>
         </Section>
 
+        <Section title="결론">
+          <ol className="space-y-3">
+            {CONCLUSIONS.map((conclusion, i) => (
+              <li key={conclusion} className="flex gap-3">
+                <span
+                  aria-hidden
+                  className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-brand-50 text-xs font-bold text-brand-700"
+                >
+                  {i + 1}
+                </span>
+                <p className="text-sm leading-relaxed text-ink-700">{conclusion}</p>
+              </li>
+            ))}
+          </ol>
+        </Section>
+
         <Section
-          title="검증 계획"
-          description="연구의 효과는 학생·교사·학부모 세 축에서 사전·사후로 확인합니다."
+          title="제언"
+          description="연구 결과를 바탕으로 앞으로 이어 가야 할 과제입니다."
+        >
+          <div className="grid gap-4 sm:grid-cols-2">
+            {SUGGESTIONS.map((suggestion) => (
+              <Card key={suggestion.title}>
+                <h3 className="text-base font-bold text-brand-800">{suggestion.title}</h3>
+                <p className="mt-2 text-sm leading-relaxed text-ink-700">
+                  {suggestion.description}
+                </p>
+              </Card>
+            ))}
+          </div>
+        </Section>
+
+        <Section
+          title="검증 방법"
+          description="사전 검사(2026. 4.)와 사후 검사(2026. 10.)를 비교해 효과를 확인했습니다."
         >
           <TableScroll>
             <table className="w-full min-w-[36rem] border-collapse bg-white text-left text-sm">
@@ -114,30 +172,33 @@ export default function ResultsPage() {
                     대상
                   </th>
                   <th scope="col" className="px-4 py-3 font-semibold text-brand-800">
-                    검증 방법
+                    검사 도구
                   </th>
                   <th scope="col" className="px-4 py-3 font-semibold text-brand-800">
-                    시기
+                    분석 방법
                   </th>
                 </tr>
               </thead>
               <tbody>
-                {VERIFICATION_PLAN.map((item) => (
+                {VERIFICATION_METHODS.map((item) => (
                   <tr key={item.target} className="border-t border-brand-100">
-                    <td className="px-4 py-3 font-medium text-ink-900">
+                    <td className="px-4 py-3 whitespace-nowrap font-medium text-ink-900">
                       {item.target}
                     </td>
                     <td className="px-4 py-3 leading-relaxed text-ink-700">
-                      {item.method}
+                      {item.tool}
                     </td>
-                    <td className="px-4 py-3 whitespace-nowrap text-ink-700">
-                      {item.timing}
+                    <td className="px-4 py-3 leading-relaxed text-ink-700">
+                      {item.method}
                     </td>
                   </tr>
                 ))}
               </tbody>
             </table>
           </TableScroll>
+          <p className="mt-3 text-xs leading-relaxed text-ink-500">
+            {VERIFICATION_LIMIT}
+          </p>
         </Section>
 
         <Section

@@ -39,7 +39,7 @@ export function SiteFooter({ groups }: { groups: NavGroup[] }) {
 
         <p className="mt-8 border-t border-outline-variant pt-6 text-xs text-on-surface-variant">
           이 사이트의 연구 소개·모델·조직·추진일정·결과 콘텐츠는 연구학교
-          운영계획서와 중간보고서를 바탕으로 작성되었습니다.
+          운영계획서·중간보고서·결과보고서를 바탕으로 작성되었습니다.
         </p>
       </div>
     </footer>
