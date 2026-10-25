@@ -18,7 +18,7 @@ const EXAMPLE_MESSAGE =
   "4학년 1학기 과학 2단원 3/6차시(42-45쪽)예요. 교실에서 찾은 물체를 성질에 따라 분류하고 그 기준을 모둠에서 설명하는 수업을 하고 싶어요.";
 
 const panelClass =
-  "rounded-2xl border border-surface-variant bg-surface-container-lowest shadow-[0_1px_2px_rgba(25,28,29,0.04),0_8px_24px_-12px_rgba(0,63,177,0.12)]";
+  "rounded-3xl border border-surface-variant/90 bg-surface-container-lowest shadow-[0_1px_2px_rgba(25,28,29,0.04),0_18px_48px_-30px_rgba(0,63,177,0.28)]";
 
 type SaveState =
   | { status: "idle" | "saving" }
@@ -142,7 +142,7 @@ export function LessonPlanChat({
   }
 
   return (
-    <div className="grid gap-6 lg:grid-cols-[minmax(0,23rem)_minmax(0,1fr)] lg:items-start">
+    <div className="grid gap-5 lg:grid-cols-[minmax(0,22rem)_minmax(0,1fr)] lg:items-start">
       <StandardPicker
         standards={standards}
         selected={selected}
@@ -152,14 +152,19 @@ export function LessonPlanChat({
         }
       />
 
-      <section className={`${panelClass} flex min-w-0 flex-col overflow-hidden`}>
-        <header className="flex items-center justify-between gap-3 border-b border-surface-variant px-5 py-4">
+      <section className={`${panelClass} flex min-w-0 flex-col overflow-hidden ring-1 ring-white`}>
+        <header className="flex items-center justify-between gap-3 border-b border-surface-variant bg-white/90 px-5 py-4 sm:px-6">
           <div className="flex items-center gap-3">
             <AiAvatar />
             <div>
-              <h2 className="text-sm font-bold text-on-surface">지도안 도우미</h2>
-              <p className="text-xs text-on-surface-variant">
-                BRIDGE 프로젝트 모형 · 수업 나눔 2쪽 양식
+              <div className="flex items-center gap-2">
+                <h2 className="text-sm font-bold text-on-surface">AI 지도안 도우미</h2>
+                <span className="rounded-full bg-secondary/10 px-2 py-0.5 text-[10px] font-bold text-secondary">
+                  온라인
+                </span>
+              </div>
+              <p className="mt-0.5 text-xs text-on-surface-variant">
+                BRIDGE 3단계 · 수업 나눔 2쪽 양식
               </p>
             </div>
           </div>
@@ -175,9 +180,9 @@ export function LessonPlanChat({
           )}
         </header>
 
-        <div className="min-h-[26rem] space-y-5 overflow-y-auto bg-surface-container-low/60 px-4 py-6 sm:px-6 lg:h-[calc(100vh-17rem)] lg:min-h-[32rem]">
+        <div className="min-h-[24rem] space-y-5 overflow-y-auto bg-[linear-gradient(180deg,#f8faff_0%,#f4f5f7_100%)] px-4 py-6 sm:px-6 lg:max-h-[calc(100vh-12rem)] lg:min-h-[28rem]">
           <AssistantRow>
-            <div className="rounded-2xl rounded-tl-md bg-white px-4 py-3 text-sm leading-relaxed text-ink-700 shadow-sm ring-1 ring-surface-variant">
+            <div className="max-w-2xl rounded-2xl rounded-tl-md bg-white px-4 py-3.5 text-sm leading-relaxed text-ink-700 shadow-sm ring-1 ring-surface-variant">
               <p>
                 성취기준을 고르고, 어떤 수업인지 한두 줄로 적어 주세요. 모자란
                 내용은 한 번에 여쭤본 뒤 <strong>1쪽 개요면과 2쪽 전개면</strong>을
@@ -190,9 +195,9 @@ export function LessonPlanChat({
                     setDraft(EXAMPLE_MESSAGE);
                     inputRef.current?.focus();
                   }}
-                  className="mt-3 rounded-full bg-brand-50 px-3 py-1.5 text-xs font-medium text-brand-700 transition-colors hover:bg-brand-100"
+                  className="mt-3 inline-flex items-center gap-1 rounded-full bg-brand-50 px-3 py-1.5 text-xs font-semibold text-brand-700 transition-colors hover:bg-brand-100"
                 >
-                  예시 문장 넣어 보기
+                  예시 문장 넣기 <span aria-hidden>→</span>
                 </button>
               )}
             </div>
@@ -301,15 +306,12 @@ export function LessonPlanChat({
               </div>
             </AssistantRow>
           )}
-          <div ref={bottomRef} />
-        </div>
-
-        <form
+          <form
           onSubmit={(e) => {
             e.preventDefault();
             send();
           }}
-          className="border-t border-surface-variant bg-white px-4 py-4 sm:px-5"
+          className="rounded-2xl border border-surface-variant bg-white p-3 shadow-[0_10px_30px_-20px_rgba(0,63,177,0.35)] sm:p-4"
         >
           {error && (
             <div className="mb-3">
@@ -338,7 +340,7 @@ export function LessonPlanChat({
             </div>
           )}
 
-          <div className="flex items-end gap-2 rounded-xl border border-brand-200 bg-white p-2 transition-shadow focus-within:border-brand-500 focus-within:ring-2 focus-within:ring-brand-200">
+          <div className="flex items-end gap-2 rounded-2xl border border-brand-200 bg-white p-2 shadow-sm transition-shadow focus-within:border-brand-500 focus-within:ring-4 focus-within:ring-brand-100">
             <textarea
               ref={inputRef}
               rows={2}
@@ -361,7 +363,7 @@ export function LessonPlanChat({
               type="submit"
               disabled={loading || !draft.trim()}
               aria-label="보내기"
-              className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-brand-600 text-white transition-colors hover:bg-brand-700 disabled:cursor-not-allowed disabled:bg-brand-200"
+              className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-brand-600 text-white shadow-sm transition-all hover:-translate-y-0.5 hover:bg-brand-700 disabled:cursor-not-allowed disabled:bg-brand-200 disabled:shadow-none"
             >
               <svg viewBox="0 0 20 20" fill="currentColor" className="h-4 w-4" aria-hidden>
                 <path d="M3.1 2.3a.75.75 0 0 1 .8-.1l13.5 7.1a.75.75 0 0 1 0 1.4L3.9 17.8a.75.75 0 0 1-1-.9L4.7 11H10a.75.75 0 0 0 0-1.5H4.7L2.9 3.1a.75.75 0 0 1 .2-.8Z" />
@@ -373,7 +375,9 @@ export function LessonPlanChat({
             {planCount !== null &&
               ` (오늘 ${Math.max(dailyLimit - planCount, 0)}개 남음)`}
           </p>
-        </form>
+          </form>
+          <div ref={bottomRef} />
+        </div>
       </section>
     </div>
   );
@@ -441,19 +445,28 @@ function StandardPicker({
     }`;
 
   return (
-    <aside className={`${panelClass} space-y-4 p-5 lg:sticky lg:top-24`}>
-      <div className="flex items-baseline justify-between">
-        <h2 className="text-sm font-bold text-on-surface">성취기준 고르기</h2>
-        <span className="text-xs tabular-nums text-on-surface-variant">
-          {filtered.length}개
-        </span>
+    <aside className={`${panelClass} overflow-hidden lg:sticky lg:top-24`}>
+      <div className="border-b border-surface-variant bg-gradient-to-br from-brand-700 to-brand-600 px-5 py-5 text-white">
+        <div className="flex items-center justify-between gap-3">
+          <div>
+            <p className="text-[10px] font-bold tracking-[0.16em] text-brand-100">STEP 01</p>
+            <h2 className="mt-1 text-base font-bold">성취기준 고르기</h2>
+          </div>
+          <span className="rounded-full bg-white/15 px-2.5 py-1 text-xs font-semibold tabular-nums text-white ring-1 ring-white/20">
+            {selected.length}/{MAX_STANDARDS} 선택
+          </span>
+        </div>
+        <p className="mt-2 text-xs leading-relaxed text-brand-100">
+          수업과 연결할 기준을 최대 {MAX_STANDARDS}개 선택하세요.
+        </p>
       </div>
 
-      <div
-        className="grid grid-cols-2 gap-1 rounded-lg bg-surface-container-low p-1"
-        role="tablist"
-        aria-label="학년군"
-      >
+      <div className="space-y-4 p-5">
+        <div
+          className="grid grid-cols-2 gap-1 rounded-lg bg-surface-container-low p-1"
+          role="tablist"
+          aria-label="학년군"
+        >
         {GRADE_BANDS.map((b) => (
           <button
             key={b}
@@ -473,9 +486,9 @@ function StandardPicker({
             {b}학년
           </button>
         ))}
-      </div>
+        </div>
 
-      <div className="flex flex-wrap gap-1.5" aria-label="교과">
+        <div className="flex flex-wrap gap-1.5" aria-label="교과">
         <button type="button" onClick={() => setSubject("")} className={chip(!subject)}>
           전체
         </button>
@@ -490,9 +503,9 @@ function StandardPicker({
             {s}
           </button>
         ))}
-      </div>
+        </div>
 
-      <label className="relative block">
+        <label className="relative block">
         <svg
           viewBox="0 0 20 20"
           fill="currentColor"
@@ -512,9 +525,9 @@ function StandardPicker({
           aria-label="성취기준 검색"
           className="w-full rounded-lg border border-surface-variant bg-white py-2 pl-9 pr-3 text-sm text-ink-900 placeholder:text-ink-500/60 focus:border-brand-500 focus:outline-none focus:ring-2 focus:ring-brand-200"
         />
-      </label>
+        </label>
 
-      <ul className="-mx-2 max-h-72 space-y-0.5 overflow-y-auto px-2 lg:max-h-[calc(100vh-30rem)] lg:min-h-48">
+        <ul className="-mx-2 max-h-72 space-y-1 overflow-y-auto px-2 lg:max-h-[calc(100vh-32rem)] lg:min-h-48">
         {filtered.map((s) => {
           const active = isSelected(s.code);
           return (
@@ -523,8 +536,8 @@ function StandardPicker({
                 type="button"
                 onClick={() => onToggle(s)}
                 aria-pressed={active}
-                className={`flex w-full gap-2.5 rounded-lg px-2.5 py-2 text-left text-xs leading-relaxed transition-colors ${
-                  active ? "bg-brand-50 ring-1 ring-brand-200" : "hover:bg-surface-container-low"
+                className={`flex w-full gap-2.5 rounded-xl px-3 py-2.5 text-left text-xs leading-relaxed transition-all ${
+                  active ? "bg-brand-50 shadow-sm ring-1 ring-brand-200" : "hover:bg-surface-container-low"
                 }`}
               >
                 <span
@@ -550,9 +563,9 @@ function StandardPicker({
             찾는 성취기준이 없습니다.
           </li>
         )}
-      </ul>
+        </ul>
 
-      {selected.length > 0 && (
+        {selected.length > 0 && (
         <div className="space-y-2 border-t border-surface-variant pt-4">
           <p className="text-xs font-semibold text-on-surface">
             고른 성취기준{" "}
@@ -598,7 +611,8 @@ function StandardPicker({
             </div>
           ))}
         </div>
-      )}
+        )}
+      </div>
     </aside>
   );
 }
