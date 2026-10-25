@@ -1,13 +1,14 @@
 import Image from "next/image";
 import Link from "next/link";
+import { BraidgeWordmark } from "@/components/braidge-wordmark";
 import { Card, Container, Section } from "@/components/ui";
 import { RESEARCH_OVERVIEW, RESEARCH_PHASES } from "@/content/research";
 
 const SHARE_POINTS = [
   {
     href: "/lesson-plan",
-    title: "BRIDGE 지도안 만들기",
-    body: "학년·과목·성취기준을 넣으면 BRIDGE 6단계 지도안 초안을 만들어 드립니다. 로그인 없이 바로 쓰고 내려받을 수 있습니다.",
+    title: "BRAIDGE 지도안 만들기",
+    body: "성취기준을 고르고 수업을 채팅으로 설명하면 AI가 BR·ID·GE 3단계 BRIDGE 지도안 초안을 써 드립니다. 로그인 없이 바로 쓰고 내려받을 수 있습니다.",
     cta: "지도안 만들기",
     primary: true,
   },
@@ -60,7 +61,7 @@ export default function Home() {
                 href="/lesson-plan"
                 className="rounded-xl border border-primary bg-white px-5 py-3 text-sm font-semibold text-primary transition-colors duration-200 hover:bg-brand-50 active:scale-95"
               >
-                BRIDGE 지도안 만들기
+                <BraidgeWordmark /> 지도안 만들기
               </Link>
             </div>
           </div>

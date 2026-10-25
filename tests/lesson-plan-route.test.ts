@@ -7,26 +7,26 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 
 const generateLessonPlan = vi.fn();
 
-// IP + 날짜별 카운터. 실제 increment_rate_limit RPC 의 동작을 그대로 흉내낸다.
+// 홈페이지 전체 날짜별 카운터. 실제 api_rate_limits 행의 동작을 흉내낸다.
 const counters = new Map<string, number>();
-const DAILY_LIMIT = 5;
+const SITE_DAILY_PLAN_LIMIT = 5;
+let today = "2026-08-16";
 
-const consumeRateLimit = vi.fn(
-  async (ip: string, date = "2026-08-16", limit = DAILY_LIMIT) => {
-    const key = `${ip}|${date}`;
-    const next = (counters.get(key) ?? 0) + 1;
-    counters.set(key, next);
-    return { allowed: next <= limit, count: next, limit };
-  },
-);
+const readSitePlanCount = vi.fn(async () => {
+  const count = counters.get(today) ?? 0;
+  return { allowed: count < SITE_DAILY_PLAN_LIMIT, count, limit: SITE_DAILY_PLAN_LIMIT };
+});
+const recordSitePlan = vi.fn(async () => {
+  const count = (counters.get(today) ?? 0) + 1;
+  counters.set(today, count);
+  return { allowed: count <= SITE_DAILY_PLAN_LIMIT, count, limit: SITE_DAILY_PLAN_LIMIT };
+});
 
 vi.mock("@/lib/lesson-plan/generate", () => ({ generateLessonPlan }));
 vi.mock("@/lib/lesson-plan/rate-limit", () => ({
-  consumeRateLimit,
-  clientIpFrom: (headers: Headers) =>
-    headers.get("x-forwarded-for")?.split(",")[0]?.trim() ?? "unknown",
-  kstDateString: () => "2026-08-16",
-  DAILY_LIMIT,
+  readSitePlanCount,
+  recordSitePlan,
+  SITE_DAILY_PLAN_LIMIT,
 }));
 
 const { POST } = await import("@/app/api/lesson-plan/generate/route");
@@ -64,9 +64,11 @@ function post(body: unknown, ip = "203.0.113.1") {
 
 beforeEach(() => {
   counters.clear();
+  today = "2026-08-16";
   generateLessonPlan.mockReset();
   generateLessonPlan.mockResolvedValue(SAMPLE_PLAN);
-  consumeRateLimit.mockClear();
+  readSitePlanCount.mockClear();
+  recordSitePlan.mockClear();
 });
 
 describe("POST /api/lesson-plan/generate — 입력 검증 (AC3)", () => {
@@ -128,50 +130,45 @@ describe("POST /api/lesson-plan/generate — 입력 검증 (AC3)", () => {
   });
 });
 
-describe("POST /api/lesson-plan/generate — rate limit (AC11)", () => {
-  it("같은 IP로 5회까지 허용하고 6번째부터 429를 반환한다", async () => {
+describe("POST /api/lesson-plan/generate — 홈페이지 전체 하루 5개 (AC11)", () => {
+  it("IP가 달라도 홈페이지 전체에서 5개까지만 만들고 6번째부터 429", async () => {
     for (let i = 1; i <= 5; i++) {
-      const res = await POST(post(COMPLETE_BODY, "198.51.100.9"));
+      const res = await POST(post(COMPLETE_BODY, `198.51.100.${i}`));
       expect(res.status, `${i}번째 요청`).toBe(200);
     }
 
-    const res = await POST(post(COMPLETE_BODY, "198.51.100.9"));
+    const res = await POST(post(COMPLETE_BODY, "198.51.100.99"));
     const json = await res.json();
     expect(res.status).toBe(429);
-    expect(json.error).toMatch(/하루 5회/);
+    expect(json.error).toMatch(/지도안 5개/);
     expect(json.error).toMatch(/자정/);
   });
 
   it("한도를 넘으면 생성 API를 호출하지 않는다", async () => {
-    for (let i = 0; i < 5; i++) await POST(post(COMPLETE_BODY, "198.51.100.10"));
+    for (let i = 0; i < 5; i++) await POST(post(COMPLETE_BODY));
     generateLessonPlan.mockClear();
 
-    const res = await POST(post(COMPLETE_BODY, "198.51.100.10"));
+    const res = await POST(post(COMPLETE_BODY));
     expect(res.status).toBe(429);
     expect(generateLessonPlan).not.toHaveBeenCalled();
   });
 
-  it("IP가 다르면 카운터를 따로 센다", async () => {
-    for (let i = 0; i < 5; i++) await POST(post(COMPLETE_BODY, "198.51.100.11"));
-    expect((await POST(post(COMPLETE_BODY, "198.51.100.11"))).status).toBe(429);
-    expect((await POST(post(COMPLETE_BODY, "198.51.100.12"))).status).toBe(200);
+  it("생성에 실패하면 개수를 쓰지 않는다", async () => {
+    generateLessonPlan.mockRejectedValueOnce(new Error("OpenAI 오류"));
+    expect((await POST(post(COMPLETE_BODY))).status).toBe(502);
+    expect(recordSitePlan).not.toHaveBeenCalled();
   });
 
-  it("날짜가 바뀌면 카운터가 초기화된다", async () => {
-    const ip = "198.51.100.13";
-    for (let i = 0; i < 5; i++) {
-      await consumeRateLimit(ip, "2026-08-16");
-    }
-    // 같은 날 6번째는 거부
-    expect((await consumeRateLimit(ip, "2026-08-16")).allowed).toBe(false);
-    // 다음 날은 새 행이므로 다시 허용
-    const nextDay = await consumeRateLimit(ip, "2026-08-17");
-    expect(nextDay.allowed).toBe(true);
-    expect(nextDay.count).toBe(1);
+  it("날짜가 바뀌면 다시 5개를 만들 수 있다", async () => {
+    for (let i = 0; i < 5; i++) await POST(post(COMPLETE_BODY));
+    expect((await POST(post(COMPLETE_BODY))).status).toBe(429);
+    today = "2026-08-17";
+    expect((await POST(post(COMPLETE_BODY))).status).toBe(200);
   });
 
-  it("입력 검증이 rate limit보다 먼저다 — 잘못된 요청은 횟수를 소모하지 않는다", async () => {
-    await POST(post({ ...COMPLETE_BODY, unit: "" }, "198.51.100.14"));
-    expect(consumeRateLimit).not.toHaveBeenCalled();
+  it("입력 검증이 제한보다 먼저다 — 잘못된 요청은 개수를 쓰지 않는다", async () => {
+    await POST(post({ ...COMPLETE_BODY, unit: "" }));
+    expect(readSitePlanCount).not.toHaveBeenCalled();
+    expect(recordSitePlan).not.toHaveBeenCalled();
   });
 });

@@ -5,11 +5,18 @@ import type { ReactNode } from "react";
  *
  * dangerouslySetInnerHTML 을 쓰지 않고 React 엘리먼트만 만든다.
  * 모델이 만든 텍스트에 HTML이 섞여 들어와도 그대로 실행될 여지가 없다.
- * 지원: #~#### 제목, - / 1. 목록, | 표, **굵게**, 수평선, 문단.
+ * 지원: #~#### 제목, - / 1. 목록, | 표, **굵게**, 수평선, 문단 + `<br>` 줄바꿈.
  */
 
-/** **굵게** 만 인라인 처리한다. */
+/** `<br>` 줄바꿈과 **굵게** 만 인라인 처리한다. 그 밖의 HTML 은 글자 그대로 둔다. */
 function renderInline(text: string, keyPrefix: string): ReactNode[] {
+  return text.split(/<br\s*\/?>/i).flatMap((line, li) => [
+    ...(li > 0 ? [<br key={`${keyPrefix}-br-${li}`} />] : []),
+    ...renderBold(line, `${keyPrefix}-${li}`),
+  ]);
+}
+
+function renderBold(text: string, keyPrefix: string): ReactNode[] {
   return text.split(/(\*\*[^*]+\*\*)/g).map((part, i) => {
     if (part.startsWith("**") && part.endsWith("**") && part.length > 4) {
       return (

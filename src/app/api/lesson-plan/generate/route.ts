@@ -1,9 +1,9 @@
 import { NextResponse } from "next/server";
 import { generateLessonPlan } from "@/lib/lesson-plan/generate";
 import {
-  clientIpFrom,
-  consumeRateLimit,
-  DAILY_LIMIT,
+  readSitePlanCount,
+  recordSitePlan,
+  SITE_DAILY_PLAN_LIMIT,
 } from "@/lib/lesson-plan/rate-limit";
 import { validateLessonPlanInput } from "@/lib/lesson-plan/schema";
 
@@ -31,15 +31,14 @@ export async function POST(request: Request) {
     );
   }
 
-  // 2. IP + KST 날짜 기준 일일 호출 제한 (R20).
-  const ip = clientIpFrom(request.headers);
-  const rate = await consumeRateLimit(ip);
-  if (!rate.allowed) {
+  // 2. 홈페이지 전체에서 하루 지도안 수 제한 (KST 날짜 기준, 채팅과 같은 카운터).
+  const usage = await readSitePlanCount();
+  if (!usage.allowed) {
     return NextResponse.json(
       {
-        error: `지도안 생성은 하루 ${rate.limit}회까지 이용할 수 있습니다. 내일 자정(한국 시간) 이후 다시 시도해 주세요.`,
-        limit: rate.limit,
-        count: rate.count,
+        error: `오늘 홈페이지에서 만들 수 있는 지도안 ${usage.limit}개가 모두 작성되었습니다. 내일 자정(한국 시간) 이후 다시 시도해 주세요.`,
+        limit: usage.limit,
+        count: usage.count,
       },
       { status: 429 },
     );
@@ -48,10 +47,12 @@ export async function POST(request: Request) {
   // 3. 생성.
   try {
     const content = await generateLessonPlan(validated.value);
+    // 실패한 생성은 세지 않는다.
+    const recorded = await recordSitePlan();
     return NextResponse.json({
       content,
       input: validated.value,
-      usage: { count: rate.count, limit: rate.limit },
+      usage: { count: recorded.count, limit: recorded.limit },
     });
   } catch (error) {
     const message =
@@ -66,5 +67,5 @@ export async function POST(request: Request) {
 
 /** 남은 횟수 안내용. 카운터를 올리지 않는다. */
 export async function GET() {
-  return NextResponse.json({ limit: DAILY_LIMIT });
+  return NextResponse.json({ limit: SITE_DAILY_PLAN_LIMIT });
 }

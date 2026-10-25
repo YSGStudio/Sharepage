@@ -43,6 +43,7 @@ const nextConfig: NextConfig = {
   // import 가 아니라 fs 로 읽으므로 추적에 잡히지 않아 직접 포함시킨다.
   outputFileTracingIncludes: {
     "/api/lesson-plan/generate": ["src/content/lesson-plan/**/*"],
+    "/api/lesson-plan/chat": ["src/content/lesson-plan/**/*"],
   },
 };
 

@@ -1,7 +1,13 @@
 import { createSupabaseAdminClient } from "@/lib/supabase/admin";
 
-/** IP당 하루 허용 횟수 (R20) */
-export const DAILY_LIMIT = 5;
+/**
+ * 지도안은 사람마다가 아니라 홈페이지 전체에서 하루 이만큼만 만든다 (채팅·폼 공통).
+ * 질문·답변이 오간 횟수가 아니라 완성된 지도안 수를 센다.
+ */
+export const SITE_DAILY_PLAN_LIMIT = 5;
+
+/** 홈페이지 전체 카운터를 api_rate_limits 에 둘 때 쓰는 키. IP 와 겹치지 않는다. */
+const SITE_PLAN_KEY = "site:lesson-plan";
 
 /**
  * KST(UTC+9) 기준 오늘 날짜를 YYYY-MM-DD 로 반환한다.
@@ -41,7 +47,7 @@ export interface RateLimitResult {
 export async function consumeRateLimit(
   ip: string,
   date: string = kstDateString(),
-  limit: number = DAILY_LIMIT,
+  limit: number,
 ): Promise<RateLimitResult> {
   const supabase = createSupabaseAdminClient();
 
@@ -62,4 +68,36 @@ export async function consumeRateLimit(
   const allowed = Boolean(row?.allowed);
 
   return { allowed, count, limit };
+}
+
+/**
+ * 오늘 홈페이지 전체에서 완성된 지도안 수를 읽는다. 카운터를 올리지 않는다.
+ */
+export async function readSitePlanCount(
+  date: string = kstDateString(),
+): Promise<RateLimitResult> {
+  const limit = SITE_DAILY_PLAN_LIMIT;
+  const supabase = createSupabaseAdminClient();
+
+  const { data, error } = await supabase
+    .from("api_rate_limits")
+    .select("count")
+    .eq("ip_address", SITE_PLAN_KEY)
+    .eq("request_date", date)
+    .maybeSingle();
+
+  if (error) {
+    console.error("[rate-limit] 지도안 수 조회 실패:", error.message);
+    return { allowed: true, count: 0, limit, degraded: true };
+  }
+
+  const count = Number(data?.count ?? 0);
+  return { allowed: count < limit, count, limit };
+}
+
+/** 지도안 하나가 완성됐을 때 홈페이지 전체 카운터를 1 올린다. */
+export function recordSitePlan(
+  date: string = kstDateString(),
+): Promise<RateLimitResult> {
+  return consumeRateLimit(SITE_PLAN_KEY, date, SITE_DAILY_PLAN_LIMIT);
 }

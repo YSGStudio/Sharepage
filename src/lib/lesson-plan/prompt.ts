@@ -26,9 +26,8 @@ const WEB_ADAPTATION = `당신은 언남초등학교 BRIDGE 프로젝트 모형 
 - 마지막 줄에 이 지도안이 AI가 만든 초안이며 교사의 검수·수정이 필요하다는 안내를 한 문장 넣습니다.
 - 한국어로 작성합니다.`;
 
-export const LESSON_PLAN_SYSTEM_PROMPT = `${WEB_ADAPTATION}
-
-===== SKILL =====
+/** 스킬 문서 세 개. 폼 생성기와 채팅이 함께 쓴다. */
+export const SKILL_DOCS_SECTION = `===== SKILL =====
 
 ${SKILL_DOC}
 
@@ -39,6 +38,10 @@ ${FORMAT_SPEC_DOC}
 ===== PHRASEBANK (도구·문형) =====
 
 ${PHRASEBANK_DOC}`;
+
+export const LESSON_PLAN_SYSTEM_PROMPT = `${WEB_ADAPTATION}
+
+${SKILL_DOCS_SECTION}`;
 
 /** 값이 있는 항목만 `이름: 값` 줄로 만든다. */
 function line(label: string, value: string | undefined): string | null {

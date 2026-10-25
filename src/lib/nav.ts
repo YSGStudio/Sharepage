@@ -49,7 +49,7 @@ export const NAV_GROUPS: NavGroup[] = [
   },
   {
     label: "도구",
-    items: [{ href: "/lesson-plan", label: "BRIDGE 지도안 만들기" }],
+    items: [{ href: "/lesson-plan", label: "BRAIDGE 지도안 만들기" }],
   },
 ];
 
