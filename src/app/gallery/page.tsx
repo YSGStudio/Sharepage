@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
+import { CaptionEditor } from "@/components/caption-editor";
 import { DeleteButton } from "@/components/delete-button";
 import { Alert, Card, Container, PageHeader } from "@/components/ui";
 import {
@@ -39,10 +40,10 @@ const KIND_THEME = {
 
 function PhotoGrid({
   photos,
-  canDelete,
+  canEdit,
 }: {
   photos: PhotoWithUrl[];
-  canDelete: boolean;
+  canEdit: boolean;
 }) {
   return (
     <ul className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
@@ -59,15 +60,15 @@ function PhotoGrid({
               />
             </div>
             <div className="flex flex-1 flex-col p-4">
-              {p.caption && (
-                <p className="text-sm leading-relaxed text-ink-700">
-                  {p.caption}
-                </p>
-              )}
+              <CaptionEditor
+                photoId={p.id}
+                caption={p.caption}
+                canEdit={canEdit}
+              />
               <p className="mt-auto pt-3 text-xs text-ink-500">
                 {new Date(p.created_at).toLocaleDateString("ko-KR")}
               </p>
-              {canDelete && (
+              {canEdit && (
                 <div className="mt-3 border-t border-brand-100 pt-3">
                   <DeleteButton endpoint={`/api/photos/${p.id}`} />
                 </div>
@@ -247,7 +248,7 @@ export default async function GalleryPage() {
 
                         <div className="mt-4">
                           {items.length > 0 ? (
-                            <PhotoGrid photos={items} canDelete={canUpload} />
+                            <PhotoGrid photos={items} canEdit={canUpload} />
                           ) : (
                             <p className="rounded-xl border border-dashed border-surface-variant px-4 py-6 text-center text-sm text-ink-500">
                               아직 등록된 사진이 없습니다.
@@ -288,7 +289,7 @@ export default async function GalleryPage() {
               <div aria-hidden className="mt-4 h-1 w-16 rounded bg-surface-variant" />
 
               <div className="mt-7">
-                <PhotoGrid photos={unsorted} canDelete={canUpload} />
+                <PhotoGrid photos={unsorted} canEdit={canUpload} />
               </div>
             </section>
           )}
