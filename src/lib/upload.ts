@@ -23,6 +23,14 @@ export const ALLOWED_IMAGE_TYPES = [
   "image/gif",
 ];
 
+/** 앨범 사진 형식별 저장 확장자. 직접 업로드 경로는 원본 이름이 아니라 형식으로 확장자를 정한다. */
+export const IMAGE_EXTENSIONS: Record<string, string> = {
+  "image/jpeg": "jpg",
+  "image/png": "png",
+  "image/webp": "webp",
+  "image/gif": "gif",
+};
+
 /** 브릿지 뉴스 본문 */
 export const ALLOWED_PDF_TYPES = ["application/pdf"];
 
@@ -59,6 +67,31 @@ export function checkFile(
   if (allowedTypes && !allowedTypes.includes(file.type)) {
     return "허용되지 않는 파일 형식입니다.";
   }
+  return null;
+}
+
+export interface FileMeta {
+  name?: unknown;
+  size?: unknown;
+  type?: unknown;
+}
+
+/**
+ * 직접 업로드 전에 브라우저가 알려 준 파일 정보가 한도·형식에 맞는지 본다.
+ * 실제 파일은 등록 때 Storage 에서 다시 확인한다.
+ */
+export function checkFileMeta(
+  meta: FileMeta | undefined,
+  maxBytes: number,
+  allowedTypes: string[],
+): string | null {
+  const size = typeof meta?.size === "number" ? meta.size : 0;
+  const type = typeof meta?.type === "string" ? meta.type : "";
+  if (size <= 0) return "파일을 선택해 주세요.";
+  if (size > maxBytes) {
+    return `파일이 너무 큽니다. ${Math.floor(maxBytes / 1024 / 1024)}MB 이하만 올릴 수 있습니다.`;
+  }
+  if (!allowedTypes.includes(type)) return "허용되지 않는 파일 형식입니다.";
   return null;
 }
 

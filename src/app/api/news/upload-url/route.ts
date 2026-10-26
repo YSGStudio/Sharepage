@@ -5,32 +5,12 @@ import {
   ALLOWED_PDF_TYPES,
   ALLOWED_THUMB_TYPES,
   buildStoragePath,
+  checkFileMeta,
+  type FileMeta,
   MAX_NEWS_BYTES,
   MAX_THUMB_BYTES,
   NEWS_BUCKET,
 } from "@/lib/upload";
-
-interface FileMeta {
-  name?: unknown;
-  size?: unknown;
-  type?: unknown;
-}
-
-/** 브라우저가 알려 준 파일 정보가 한도·형식에 맞는지 본다. 실제 파일은 등록 때 다시 확인한다. */
-function checkMeta(
-  meta: FileMeta | undefined,
-  maxBytes: number,
-  allowedTypes: string[],
-): string | null {
-  const size = typeof meta?.size === "number" ? meta.size : 0;
-  const type = typeof meta?.type === "string" ? meta.type : "";
-  if (size <= 0) return "파일을 선택해 주세요.";
-  if (size > maxBytes) {
-    return `파일이 너무 큽니다. ${Math.floor(maxBytes / 1024 / 1024)}MB 이하만 올릴 수 있습니다.`;
-  }
-  if (!allowedTypes.includes(type)) return "허용되지 않는 파일 형식입니다.";
-  return null;
-}
 
 /**
  * 브릿지 뉴스 파일을 브라우저가 Supabase Storage 로 직접 올릴 수 있는 일회용 주소를 만든다.
@@ -50,12 +30,12 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "요청 형식이 올바르지 않습니다." }, { status: 400 });
   }
 
-  const pdfError = checkMeta(body.pdf, MAX_NEWS_BYTES, ALLOWED_PDF_TYPES);
+  const pdfError = checkFileMeta(body.pdf, MAX_NEWS_BYTES, ALLOWED_PDF_TYPES);
   if (pdfError) return NextResponse.json({ error: pdfError }, { status: 400 });
 
   // 표지는 없어도 된다. 형식이 맞지 않으면 표지만 빼고 진행한다.
   const withThumb =
-    body.thumb != null && checkMeta(body.thumb, MAX_THUMB_BYTES, ALLOWED_THUMB_TYPES) === null;
+    body.thumb != null && checkFileMeta(body.thumb, MAX_THUMB_BYTES, ALLOWED_THUMB_TYPES) === null;
 
   const supabase = await createSupabaseServerClient();
   const bucket = supabase.storage.from(NEWS_BUCKET);

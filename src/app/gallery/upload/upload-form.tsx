@@ -4,7 +4,20 @@ import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { Field, FormMessage, Select, TextArea } from "@/components/form";
 import { GALLERY_SECTIONS } from "@/content/gallery-sections";
-import { ALLOWED_IMAGE_TYPES, MAX_IMAGE_BYTES } from "@/lib/upload";
+import { createSupabaseBrowserClient } from "@/lib/supabase/client";
+import { ALLOWED_IMAGE_TYPES, MAX_IMAGE_BYTES, PHOTOS_BUCKET } from "@/lib/upload";
+
+/** JSON 을 보내고, 실패하면 서버가 준 문구로 예외를 던진다. */
+async function postJson<T = unknown>(url: string, body: unknown): Promise<T> {
+  const res = await fetch(url, {
+    method: "POST",
+    headers: { "content-type": "application/json" },
+    body: JSON.stringify(body),
+  });
+  const json = await res.json().catch(() => ({}));
+  if (!res.ok) throw new Error(json.error ?? "업로드에 실패했습니다.");
+  return json as T;
+}
 
 export function PhotoUploadForm() {
   const router = useRouter();
@@ -40,20 +53,42 @@ export function PhotoUploadForm() {
 
     setBusy(true);
     try {
-      const res = await fetch("/api/photos", { method: "POST", body: formData });
-      const json = await res.json().catch(() => ({}));
+      // 1) 업로드 주소 받기 — 서버는 권한·한도만 확인한다.
+      const prepared = await postJson<{ path: string; token: string }>(
+        "/api/photos/upload-url",
+        { file: { name: file.name, size: file.size, type: file.type } },
+      );
 
-      if (!res.ok) {
-        setError(json.error ?? "업로드에 실패했습니다.");
-        return;
+      // 2) 사진은 브라우저에서 Storage 로 바로 올린다(서버 요청 크기 제한 회피).
+      const uploaded = await createSupabaseBrowserClient()
+        .storage.from(PHOTOS_BUCKET)
+        .uploadToSignedUrl(prepared.path, prepared.token, file, {
+          contentType: file.type,
+        });
+      if (uploaded.error) {
+        console.error("[photos] 사진 업로드 실패:", uploaded.error);
+        throw new Error("사진 업로드에 실패했습니다. 잠시 후 다시 시도해 주세요.");
       }
+
+      // 3) 등록 — 서버가 올라간 파일을 다시 확인한다.
+      await postJson("/api/photos", {
+        storage_path: prepared.path,
+        caption: formData.get("caption"),
+        category: formData.get("category"),
+      });
 
       form.reset();
       setPreview(null);
       router.push("/gallery");
       router.refresh();
-    } catch {
-      setError("네트워크 오류입니다. 잠시 후 다시 시도해 주세요.");
+    } catch (e) {
+      setError(
+        e instanceof TypeError
+          ? "네트워크 오류입니다. 잠시 후 다시 시도해 주세요."
+          : e instanceof Error
+            ? e.message
+            : "업로드에 실패했습니다.",
+      );
     } finally {
       setBusy(false);
     }
