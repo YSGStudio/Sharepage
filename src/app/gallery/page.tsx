@@ -3,6 +3,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { CaptionEditor } from "@/components/caption-editor";
 import { DeleteButton } from "@/components/delete-button";
+import { PhotoMoveButton } from "@/components/photo-move-button";
 import { Alert, Card, Container, PageHeader } from "@/components/ui";
 import {
   GALLERY_SECTIONS,
@@ -69,8 +70,9 @@ function PhotoGrid({
                 {new Date(p.created_at).toLocaleDateString("ko-KR")}
               </p>
               {canEdit && (
-                <div className="mt-3 border-t border-brand-100 pt-3">
+                <div className="mt-3 flex flex-wrap items-center gap-1.5 border-t border-brand-100 pt-3">
                   <DeleteButton endpoint={`/api/photos/${p.id}`} />
+                  <PhotoMoveButton photoId={p.id} category={p.category} />
                 </div>
               )}
             </div>

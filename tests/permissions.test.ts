@@ -75,7 +75,9 @@ const ADMIN: CurrentUser = {
 const { DELETE: deleteMaterial } = await import(
   "@/app/api/materials/[id]/route"
 );
-const { DELETE: deletePhoto } = await import("@/app/api/photos/[id]/route");
+const { DELETE: deletePhoto, PATCH: patchPhoto } = await import(
+  "@/app/api/photos/[id]/route"
+);
 const { DELETE: deleteNews } = await import("@/app/api/news/[id]/route");
 const { PATCH: patchTestimonial } = await import(
   "@/app/api/testimonials/[id]/route"
@@ -153,6 +155,39 @@ describe("게시물 삭제 — 승인된 교사 누구나 (R16, AC7)", () => {
       const res = await del(new Request("http://localhost"), params());
       expect(res.status).toBe(404);
     });
+  });
+});
+
+describe("앨범 사진 섹션 이동 — 승인된 교사 누구나", () => {
+  const move = (category: unknown) =>
+    patchPhoto(jsonRequest({ category }), params());
+
+  it("비로그인은 401", async () => {
+    getCurrentUser.mockResolvedValue(ANON);
+    expect((await move("common-1:1")).status).toBe(401);
+  });
+
+  it("승인 대기 교사는 403", async () => {
+    getCurrentUser.mockResolvedValue(PENDING);
+    expect((await move("common-1:1")).status).toBe(403);
+  });
+
+  it("승인된 교사는 남이 올린 사진도 옮긴다", async () => {
+    getCurrentUser.mockResolvedValue(TEACHER);
+    dbResult.data = { id: "target-1" };
+    expect((await move("common-1:1")).status).toBe(200);
+  });
+
+  it("운영자도 통과한다", async () => {
+    getCurrentUser.mockResolvedValue(ADMIN);
+    dbResult.data = { id: "target-1" };
+    expect((await move("common-1:1")).status).toBe(200);
+  });
+
+  it("섹션 키가 아닌 값은 400", async () => {
+    getCurrentUser.mockResolvedValue(TEACHER);
+    expect((await move("수업 나눔")).status).toBe(400);
+    expect((await move(null)).status).toBe(400);
   });
 });
 
