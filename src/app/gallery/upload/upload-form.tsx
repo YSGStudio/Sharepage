@@ -4,20 +4,8 @@ import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { Field, FormMessage, Select, TextArea } from "@/components/form";
 import { GALLERY_SECTIONS } from "@/content/gallery-sections";
-import { createSupabaseBrowserClient } from "@/lib/supabase/client";
-import { ALLOWED_IMAGE_TYPES, MAX_IMAGE_BYTES, PHOTOS_BUCKET } from "@/lib/upload";
-
-/** JSON 을 보내고, 실패하면 서버가 준 문구로 예외를 던진다. */
-async function postJson<T = unknown>(url: string, body: unknown): Promise<T> {
-  const res = await fetch(url, {
-    method: "POST",
-    headers: { "content-type": "application/json" },
-    body: JSON.stringify(body),
-  });
-  const json = await res.json().catch(() => ({}));
-  if (!res.ok) throw new Error(json.error ?? "업로드에 실패했습니다.");
-  return json as T;
-}
+import { checkPhotoFile, sendJson, uploadPhotoFile } from "@/lib/photo-upload";
+import { ALLOWED_IMAGE_TYPES } from "@/lib/upload";
 
 export function PhotoUploadForm() {
   const router = useRouter();
@@ -36,43 +24,23 @@ export function PhotoUploadForm() {
 
     const form = event.currentTarget;
     const formData = new FormData(form);
-    const file = formData.get("file");
+    const picked = formData.get("file");
+    const file = picked instanceof File ? picked : null;
 
-    if (!(file instanceof File) || file.size === 0) {
-      setError("사진을 선택해 주세요.");
-      return;
-    }
-    if (!ALLOWED_IMAGE_TYPES.includes(file.type)) {
-      setError("JPG, PNG, WEBP, GIF 형식만 올릴 수 있습니다.");
-      return;
-    }
-    if (file.size > MAX_IMAGE_BYTES) {
-      setError("사진이 너무 큽니다. 10MB 이하만 올릴 수 있습니다.");
+    const fileError = checkPhotoFile(file);
+    if (fileError || !file) {
+      setError(fileError ?? "사진을 선택해 주세요.");
       return;
     }
 
     setBusy(true);
     try {
-      // 1) 업로드 주소 받기 — 서버는 권한·한도만 확인한다.
-      const prepared = await postJson<{ path: string; token: string }>(
-        "/api/photos/upload-url",
-        { file: { name: file.name, size: file.size, type: file.type } },
-      );
+      // 1) 사진은 브라우저에서 Storage 로 바로 올린다.
+      const storagePath = await uploadPhotoFile(file);
 
-      // 2) 사진은 브라우저에서 Storage 로 바로 올린다(서버 요청 크기 제한 회피).
-      const uploaded = await createSupabaseBrowserClient()
-        .storage.from(PHOTOS_BUCKET)
-        .uploadToSignedUrl(prepared.path, prepared.token, file, {
-          contentType: file.type,
-        });
-      if (uploaded.error) {
-        console.error("[photos] 사진 업로드 실패:", uploaded.error);
-        throw new Error("사진 업로드에 실패했습니다. 잠시 후 다시 시도해 주세요.");
-      }
-
-      // 3) 등록 — 서버가 올라간 파일을 다시 확인한다.
-      await postJson("/api/photos", {
-        storage_path: prepared.path,
+      // 2) 등록 — 서버가 올라간 파일을 다시 확인한다.
+      await sendJson("/api/photos", {
+        storage_path: storagePath,
         caption: formData.get("caption"),
         category: formData.get("category"),
       });

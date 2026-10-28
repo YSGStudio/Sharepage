@@ -3,10 +3,9 @@ import { isGallerySectionKey } from "@/content/gallery-sections";
 import { requireApprovedTeacher } from "@/lib/guards";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import {
-  ALLOWED_IMAGE_TYPES,
   IMAGE_EXTENSIONS,
+  isAllowedUploadedImage,
   isOwnStoragePath,
-  MAX_IMAGE_BYTES,
   PHOTOS_BUCKET,
 } from "@/lib/upload";
 
@@ -70,10 +69,7 @@ export async function POST(request: Request) {
       { status: 400 },
     );
   }
-  if (
-    (info.size ?? 0) > MAX_IMAGE_BYTES ||
-    !ALLOWED_IMAGE_TYPES.includes(info.contentType ?? "")
-  ) {
+  if (!isAllowedUploadedImage(info)) {
     await removeUploaded();
     return NextResponse.json(
       { error: "JPG·PNG·WEBP·GIF 사진(10MB 이하)만 올릴 수 있습니다." },

@@ -96,6 +96,21 @@ export function checkFileMeta(
 }
 
 /**
+ * Storage 에 실제로 올라간 앨범 사진(info() 결과)이 한도·형식에 맞는지 본다.
+ * 브라우저가 알려 준 크기·형식은 믿지 않고 등록·교체 때 이것으로 다시 확인한다.
+ */
+export function isAllowedUploadedImage(
+  info: { size?: number; contentType?: string } | null | undefined,
+): boolean {
+  return (
+    !!info &&
+    (info.size ?? 0) > 0 &&
+    (info.size ?? 0) <= MAX_IMAGE_BYTES &&
+    ALLOWED_IMAGE_TYPES.includes(info.contentType ?? "")
+  );
+}
+
+/**
  * buildStoragePath 가 만든 경로인지 확인한다.
  * 브라우저가 Storage 에 직접 올린 뒤 경로를 알려 주는 흐름에서,
  * 다른 폴더의 파일이나 임의 경로를 등록하지 못하게 막는다.
